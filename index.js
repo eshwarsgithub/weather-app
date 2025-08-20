@@ -21,7 +21,201 @@ app.get('/', (req, res) => {
 
 // Explicit route for config.json (required for SFMC)
 app.get('/config.json', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'config.json'));
+    try {
+        const configPath = path.join(__dirname, 'public', 'config.json');
+        const fs = require('fs');
+        
+        if (fs.existsSync(configPath)) {
+            const configData = fs.readFileSync(configPath, 'utf8');
+            res.setHeader('Content-Type', 'application/json');
+            res.send(configData);
+        } else {
+            // Fallback: serve the config directly
+            const config = {
+                "workflowApiVersion": "1.1",
+                "metaData": {
+                    "icon": "https://weather-app-kappa-three-25.vercel.app/images/weather-icon.png",
+                    "iconSmall": "https://weather-app-kappa-three-25.vercel.app/images/weather-icon-small.png",
+                    "category": "messaging",
+                    "isConfigured": false
+                },
+                "type": "RESTDECISION",
+                "lang": {
+                    "en-US": {
+                        "name": "Weather-Based Decision Split",
+                        "description": "Routes journey participants based on current weather conditions at their location"
+                    }
+                },
+                "arguments": {
+                    "execute": {
+                        "inArguments": [
+                            {
+                                "contactKey": "{{Contact.Key}}",
+                                "locationField": "",
+                                "locationFieldType": "coordinates",
+                                "weatherConditions": "rain,snow,storm"
+                            }
+                        ],
+                        "outArguments": [
+                            {
+                                "weatherCondition": {
+                                    "dataType": "Text",
+                                    "isNullable": false,
+                                    "direction": "out"
+                                },
+                                "temperature": {
+                                    "dataType": "Number",
+                                    "isNullable": true,
+                                    "direction": "out"
+                                },
+                                "humidity": {
+                                    "dataType": "Number", 
+                                    "isNullable": true,
+                                    "direction": "out"
+                                },
+                                "description": {
+                                    "dataType": "Text",
+                                    "isNullable": true,
+                                    "direction": "out"
+                                }
+                            }
+                        ],
+                        "url": "https://weather-app-kappa-three-25.vercel.app/execute",
+                        "verb": "POST",
+                        "body": "",
+                        "header": "",
+                        "format": "json",
+                        "useJwt": true,
+                        "timeout": 30000,
+                        "retryCount": 3,
+                        "retryDelay": 2000,
+                        "concurrentRequests": 5
+                    }
+                },
+                "configurationArguments": {
+                    "applicationExtensionKey": "weather-activity-extension-key",
+                    "save": {
+                        "url": "https://weather-app-kappa-three-25.vercel.app/save",
+                        "verb": "POST",
+                        "body": "",
+                        "format": "json",
+                        "useJwt": false
+                    },
+                    "publish": {
+                        "url": "https://weather-app-kappa-three-25.vercel.app/publish",
+                        "verb": "POST",
+                        "body": "",
+                        "format": "json",
+                        "useJwt": false
+                    },
+                    "validate": {
+                        "url": "https://weather-app-kappa-three-25.vercel.app/validate",
+                        "verb": "POST",
+                        "body": "",
+                        "format": "json",
+                        "useJwt": false
+                    },
+                    "stop": {
+                        "url": "https://weather-app-kappa-three-25.vercel.app/stop",
+                        "verb": "POST",
+                        "body": "",
+                        "format": "json",
+                        "useJwt": false
+                    }
+                },
+                "edit": {
+                    "url": "https://weather-app-kappa-three-25.vercel.app/edit.html",
+                    "height": 600,
+                    "width": 800
+                },
+                "outcomes": [
+                    {
+                        "arguments": { 
+                            "branchResult": "Adverse Weather" 
+                        },
+                        "metaData": { 
+                            "label": "Adverse Weather",
+                            "description": "Contact is experiencing rain, snow, storms, or other configured adverse weather conditions"
+                        }
+                    },
+                    {
+                        "arguments": { 
+                            "branchResult": "Good Weather" 
+                        },
+                        "metaData": { 
+                            "label": "Good Weather",
+                            "description": "Contact has clear or mild weather conditions"
+                        }
+                    }
+                ],
+                "wizardSteps": [
+                    {
+                        "key": "configuration",
+                        "label": "Weather Configuration",
+                        "active": true
+                    }
+                ],
+                "schema": {
+                    "arguments": {
+                        "execute": {
+                            "inArguments": [
+                                {
+                                    "contactKey": {
+                                        "dataType": "Text",
+                                        "isNullable": false,
+                                        "direction": "in"
+                                    },
+                                    "locationField": {
+                                        "dataType": "Text",
+                                        "isNullable": false,
+                                        "direction": "in"
+                                    },
+                                    "locationFieldType": {
+                                        "dataType": "Text",
+                                        "isNullable": false,
+                                        "direction": "in"
+                                    },
+                                    "weatherConditions": {
+                                        "dataType": "Text",
+                                        "isNullable": true,
+                                        "direction": "in"
+                                    }
+                                }
+                            ],
+                            "outArguments": [
+                                {
+                                    "weatherCondition": {
+                                        "dataType": "Text",
+                                        "isNullable": false,
+                                        "direction": "out"
+                                    },
+                                    "temperature": {
+                                        "dataType": "Number",
+                                        "isNullable": true,
+                                        "direction": "out"
+                                    },
+                                    "humidity": {
+                                        "dataType": "Number",
+                                        "isNullable": true,
+                                        "direction": "out"
+                                    },
+                                    "description": {
+                                        "dataType": "Text",
+                                        "isNullable": true,
+                                        "direction": "out"
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            };
+            res.json(config);
+        }
+    } catch (error) {
+        console.error('Config.json error:', error);
+        res.status(500).json({ error: 'Unable to load configuration' });
+    }
 });
 
 // Main endpoint for Journey Builder
