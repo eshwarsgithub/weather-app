@@ -7,7 +7,25 @@
       }
     ],
     "routes": [
-      { "src": "/(.*)", "dest": "/public/$1" },
-      { "src": "/execute", "dest": "/index.js" }
+      {
+        "src": "/execute",
+        "dest": "index.js"
+      },
+      {
+        "src": "/save",
+        "dest": "index.js"
+      },
+      {
+        "src": "/publish",
+        "dest": "index.js"
+      },
+      {
+        "src": "/validate",
+        "dest": "index.js"
+      },
+      {
+        "src": "/(.*)",
+        "dest": "/public/$1"
+      }
     ]
   }
