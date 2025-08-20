@@ -1,9 +1,167 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Custom Activity Editor</title>
+    <title>Weather Activity Configuration</title>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <!-- Salesforce Lightning Design System -->
+    <link rel="stylesheet" type="text/css" href="https://www.lightningdesignsystem.com/assets/styles/salesforce-lightning-design-system.min.css" />
+    
+    <style>
+        body {
+            background: transparent;
+            font-family: 'Salesforce Sans', Arial, sans-serif;
+            margin: 15px;
+            padding: 0;
+        }
+        
+        .slds-form-element {
+            margin-bottom: 1rem;
+        }
+        
+        .step {
+            display: none;
+        }
+        
+        .step.active {
+            display: block;
+        }
+        
+        .slds-text-heading_medium {
+            color: #16325c;
+            margin-bottom: 1rem;
+        }
+        
+        .help-text {
+            color: #696e77;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+        
+        .slds-form-element__label {
+            font-weight: 600;
+            color: #181818;
+        }
+        
+        .validation-error {
+            color: #c23934;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+    </style>
 </head>
 <body>
-  <p>Configuration for this activity is handled automatically.</p>
+    <div class="slds-scope">
+        <!-- Step 1: Configuration -->
+        <div id="step1" class="step active">
+            <h2 class="slds-text-heading_medium">Configure Weather Activity</h2>
+            <p class="slds-text-body_regular">Configure how this activity will check weather conditions for your contacts.</p>
+            
+            <div class="slds-form-element">
+                <label class="slds-form-element__label" for="location-field">
+                    <abbr class="slds-required" title="required">*</abbr>
+                    Location Data Field
+                </label>
+                <div class="slds-form-element__control">
+                    <select class="slds-select" id="location-field" required>
+                        <option value="">-- Select a field containing location data --</option>
+                    </select>
+                </div>
+                <div class="help-text">
+                    Select the field from your Journey entry data that contains location information.
+                </div>
+            </div>
+
+            <div class="slds-form-element">
+                <label class="slds-form-element__label" for="location-field-type">
+                    <abbr class="slds-required" title="required">*</abbr>
+                    Location Data Type
+                </label>
+                <div class="slds-form-element__control">
+                    <select class="slds-select" id="location-field-type" required>
+                        <option value="">-- Select data type --</option>
+                        <option value="coordinates">Coordinates (lat,lng)</option>
+                        <option value="zipcode">ZIP/Postal Code</option>
+                        <option value="city">City Name</option>
+                        <option value="address">Full Address</option>
+                    </select>
+                </div>
+                <div class="help-text">
+                    Specify what type of location data the selected field contains.
+                </div>
+            </div>
+
+            <div class="slds-form-element">
+                <label class="slds-form-element__label" for="weather-conditions">
+                    Weather Conditions to Check
+                </label>
+                <div class="slds-form-element__control">
+                    <select class="slds-select" id="weather-conditions">
+                        <option value="rain,snow,storm">Rain, Snow, or Storm (Default)</option>
+                        <option value="rain">Rain Only</option>
+                        <option value="snow">Snow Only</option>
+                        <option value="storm">Storm Only</option>
+                        <option value="clear">Clear Weather</option>
+                        <option value="clouds">Cloudy Weather</option>
+                        <option value="custom">Custom Conditions</option>
+                    </select>
+                </div>
+                <div class="help-text">
+                    Select which weather conditions should trigger the "Adverse Weather" path.
+                </div>
+            </div>
+
+            <div class="slds-form-element" id="custom-conditions-group" style="display: none;">
+                <label class="slds-form-element__label" for="custom-conditions">
+                    Custom Weather Conditions
+                </label>
+                <div class="slds-form-element__control">
+                    <input type="text" class="slds-input" id="custom-conditions" 
+                           placeholder="e.g., Rain,Thunderstorm,Snow" />
+                </div>
+                <div class="help-text">
+                    Enter weather conditions separated by commas (Rain, Snow, Thunderstorm, Drizzle, etc.).
+                </div>
+            </div>
+
+            <div class="slds-box slds-theme_shade slds-m-top_medium">
+                <h3 class="slds-text-heading_small">Activity Outcomes</h3>
+                <ul class="slds-list_dotted">
+                    <li><strong>Adverse Weather:</strong> Contact experiences specified weather conditions</li>
+                    <li><strong>Good Weather:</strong> Contact has clear or mild weather conditions</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include jQuery for easier DOM manipulation -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- RequireJS and Postmonger -->
+    <script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js"></script>
+    
+    <script>
+        require.config({
+            paths: {
+                'postmonger': 'https://sfmc-content.s3.amazonaws.com/content/lib/postmonger'
+            }
+        });
+
+        // Show/hide custom conditions input based on selection
+        $('#weather-conditions').on('change', function() {
+            if ($(this).val() === 'custom') {
+                $('#custom-conditions-group').show();
+            } else {
+                $('#custom-conditions-group').hide();
+            }
+        });
+
+        // Load the custom activity configuration
+        require(['customActivity'], function() {
+            console.log('Weather Activity configuration loaded');
+        });
+    </script>
 </body>
 </html>

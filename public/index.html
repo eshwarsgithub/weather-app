@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Weather-Based Journey Builder Activity</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="https://www.lightningdesignsystem.com/assets/styles/salesforce-lightning-design-system.min.css" />
+    <style>
+        body {
+            font-family: 'Salesforce Sans', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+            padding: 40px 20px;
+        }
+        
+        .hero {
+            margin-bottom: 40px;
+        }
+        
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .hero p {
+            font-size: 1.25rem;
+            opacity: 0.9;
+            margin-bottom: 30px;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .feature {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .feature h3 {
+            margin-bottom: 15px;
+            color: #fff;
+        }
+        
+        .feature p {
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+        
+        .installation {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: left;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .installation h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .installation ol {
+            line-height: 1.8;
+        }
+        
+        .installation li {
+            margin-bottom: 10px;
+        }
+        
+        .code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="hero">
+            <div class="icon">🌦️</div>
+            <h1>Weather-Based Journey Builder Activity</h1>
+            <p>A custom Salesforce Marketing Cloud Journey Builder activity that routes contacts based on real-time weather conditions at their location.</p>
+        </div>
+        
+        <div class="features">
+            <div class="feature">
+                <h3>🎯 Dynamic Field Selection</h3>
+                <p>Select any field from your Journey entry data as the location source - coordinates, ZIP codes, city names, or full addresses.</p>
+            </div>
+            
+            <div class="feature">
+                <h3>🌍 Smart Geocoding</h3>
+                <p>Automatically converts location data to coordinates using OpenWeatherMap's geocoding API for accurate weather lookups.</p>
+            </div>
+            
+            <div class="feature">
+                <h3>⚡ Real-time Weather</h3>
+                <p>Fetches current weather conditions and routes contacts down different journey paths based on configurable weather criteria.</p>
+            </div>
+            
+            <div class="feature">
+                <h3>📊 Rich Data Output</h3>
+                <p>Returns weather condition, temperature, humidity, and description as journey variables for use in subsequent activities.</p>
+            </div>
+        </div>
+        
+        <div class="installation">
+            <h2>🚀 Installation Guide</h2>
+            <ol>
+                <li><strong>Deploy this application</strong> to a hosting platform with HTTPS support (Vercel, Heroku, etc.)</li>
+                <li><strong>Set environment variables:</strong>
+                    <div class="code">WEATHER_API_KEY=your_openweather_api_key<br>JWT_SIGNING_SECRET=your_jwt_secret</div>
+                </li>
+                <li><strong>Update config.json</strong> with your deployed application URLs</li>
+                <li><strong>Create an Installed Package</strong> in Salesforce Marketing Cloud App Center</li>
+                <li><strong>Register the custom activity</strong> using the config.json endpoint</li>
+                <li><strong>Configure your Journey</strong> with location data fields and weather conditions</li>
+            </ol>
+        </div>
+        
+        <div class="status">
+            <h3>📋 System Status</h3>
+            <div id="status-check">
+                <p>⏳ Checking system configuration...</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Check system status
+        async function checkStatus() {
+            const statusDiv = document.getElementById('status-check');
+            
+            try {
+                // Check if config.json is accessible
+                const configResponse = await fetch('/config.json');
+                const config = await configResponse.json();
+                
+                // Check if required endpoints respond
+                const validateResponse = await fetch('/validate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({})
+                });
+                
+                if (configResponse.ok && validateResponse.ok) {
+                    statusDiv.innerHTML = `
+                        <p>✅ Application is running correctly</p>
+                        <p>📝 Config.json loaded successfully</p>
+                        <p>🔧 All endpoints are responding</p>
+                        <p><strong>Activity Name:</strong> ${config.lang['en-US'].name}</p>
+                        <p><strong>Ready for SFMC installation!</strong></p>
+                    `;
+                } else {
+                    throw new Error('Some endpoints are not responding correctly');
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `
+                    <p>⚠️ Configuration check failed</p>
+                    <p>Error: ${error.message}</p>
+                    <p>Please check your deployment and environment variables.</p>
+                `;
+            }
+        }
+        
+        // Run status check when page loads
+        window.addEventListener('load', checkStatus);
+    </script>
+</body>
+</html>
