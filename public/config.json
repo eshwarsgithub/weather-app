@@ -60,7 +60,7 @@
     }
   },
   "configurationArguments": {
-    "applicationExtensionKey": "weather-activity-extension-key",
+    "applicationExtensionKey": "d6b98705-3047-4869-8419-89691fdaec3a",
     "save": {
       "url": "https://weather-app-kappa-three-25.vercel.app/save",
       "verb": "POST",
