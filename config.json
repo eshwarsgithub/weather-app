@@ -1,0 +1,50 @@
+{
+    "key": "weather-check-activity-key",
+    "name": "Weather Check",
+    "description": "Checks the current weather for a contact and branches the journey.",
+    "type": "RESTDECISION",
+    "outcomes": [
+      {
+        "key": "raining_branch",
+        "name": "Raining"
+      },
+      {
+        "key": "not_raining_branch",
+        "name": "Not Raining"
+      }
+    ],
+    "arguments": {
+      "execute": {
+        "inArguments": [
+          {
+            "contactKey": "{{Contact.Key}}",
+            "latitude": "{{Interaction.JourneyEntry_WeatherCheck_DE.Latitude}}",
+            "longitude": "{{Interaction.JourneyEntry_WeatherCheck_DE.Longitude}}"
+          }
+        ],
+        "outArguments": [],
+        "url": "https://your-vercel-app-url.vercel.app/execute",
+        "verb": "POST",
+        "body": "",
+        "header": "",
+        "format": "json",
+        "useJwt": true,
+        "timeout": 10000
+      }
+    },
+    "metaData": {
+      "icon": "images/icon.png",
+      "iconSmall": "images/icon-small.png"
+    },
+    "edit": {
+      "url": "https://your-vercel-app-url.vercel.app/edit.html",
+      "height": 300,
+      "width": 500
+    },
+    "publish": {
+        "url": "https://your-vercel-app-url.vercel.app/publish.html"
+    },
+    "validate": {
+        "url": "https://your-vercel-app-url.vercel.app/validate.html"
+    }
+  }
