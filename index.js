@@ -19,6 +19,11 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+// Explicit route for config.json (required for SFMC)
+app.get('/config.json', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'config.json'));
+});
+
 // Main endpoint for Journey Builder
 app.post('/execute', async (req, res) => {
     console.log('Execute endpoint called:', JSON.stringify(req.body, null, 2));
