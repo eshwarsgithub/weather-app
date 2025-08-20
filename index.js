@@ -19,6 +19,11 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+// Route for edit.html (SFMC configuration UI)
+app.get('/edit.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'edit.html'));
+});
+
 // Explicit route for config.json (required for SFMC)
 app.get('/config.json', (req, res) => {
     try {

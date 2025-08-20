@@ -8,6 +8,10 @@
     ],
     "routes": [
       {
+        "src": "/config.json",
+        "dest": "index.js"
+      },
+      {
         "src": "/execute",
         "dest": "index.js"
       },
@@ -21,6 +25,18 @@
       },
       {
         "src": "/validate",
+        "dest": "index.js"
+      },
+      {
+        "src": "/stop",
+        "dest": "index.js"
+      },
+      {
+        "src": "/edit.html",
+        "dest": "index.js"
+      },
+      {
+        "src": "/",
         "dest": "index.js"
       },
       {
