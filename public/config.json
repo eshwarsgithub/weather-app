@@ -1,8 +1,8 @@
 {
   "workflowApiVersion": "1.1",
   "metaData": {
-    "icon": "https://your-vercel-app-url.vercel.app/images/weather-icon.png",
-    "iconSmall": "https://your-vercel-app-url.vercel.app/images/weather-icon-small.png",
+    "icon": "https://weather-app-kappa-three-25.vercel.app/images/weather-icon.png",
+    "iconSmall": "https://weather-app-kappa-three-25.vercel.app/images/weather-icon-small.png",
     "category": "messaging",
     "isConfigured": false
   },
@@ -47,7 +47,7 @@
           }
         }
       ],
-      "url": "https://your-vercel-app-url.vercel.app/execute",
+      "url": "https://weather-app-kappa-three-25.vercel.app/execute",
       "verb": "POST",
       "body": "",
       "header": "",
@@ -62,28 +62,28 @@
   "configurationArguments": {
     "applicationExtensionKey": "weather-activity-extension-key",
     "save": {
-      "url": "https://your-vercel-app-url.vercel.app/save",
+      "url": "https://weather-app-kappa-three-25.vercel.app/save",
       "verb": "POST",
       "body": "",
       "format": "json",
       "useJwt": false
     },
     "publish": {
-      "url": "https://your-vercel-app-url.vercel.app/publish",
+      "url": "https://weather-app-kappa-three-25.vercel.app/publish",
       "verb": "POST",
       "body": "",
       "format": "json",
       "useJwt": false
     },
     "validate": {
-      "url": "https://your-vercel-app-url.vercel.app/validate",
+      "url": "https://weather-app-kappa-three-25.vercel.app/validate",
       "verb": "POST",
       "body": "",
       "format": "json",
       "useJwt": false
     },
     "stop": {
-      "url": "https://your-vercel-app-url.vercel.app/stop",
+      "url": "https://weather-app-kappa-three-25.vercel.app/stop",
       "verb": "POST",
       "body": "",
       "format": "json",
@@ -91,7 +91,7 @@
     }
   },
   "edit": {
-    "url": "https://your-vercel-app-url.vercel.app/edit.html",
+    "url": "https://weather-app-kappa-three-25.vercel.app/edit.html",
     "height": 600,
     "width": 800
   },
