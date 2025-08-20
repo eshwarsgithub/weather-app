@@ -1,20 +1,27 @@
 const express = require('express');
 const axios = require('axios');
 const jwt = require('jsonwebtoken');
-const path = require('path'); // Add this line
+const path = require('path');
 
 const app = express();
 
 // Serve static files from the 'public' directory
+// This line serves your CSS, JS, and other assets for the UI
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Middleware to parse JSON bodies
 app.use(express.json());
 
+// --- NEW ---
+// This route explicitly serves your index.html file for the homepage.
+// This is a robust way to fix the 404 error.
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
 // Main endpoint for Journey Builder
 app.post('/execute', (req, res) => {
-    // ... all of our existing execute logic ...
-    // (No changes needed inside this function)
+    // ... all of your existing execute logic ...
     const token = req.headers['x-jwt-assertion'];
     const weatherApiKey = process.env.WEATHER_API_KEY;
     const jwtSigningSecret = process.env.JWT_SIGNING_SECRET;
@@ -57,7 +64,7 @@ app.post('/execute', (req, res) => {
     });
 });
 
-// --- NEW ROUTES FOR JOURNEY BUILDER UI ---
+// --- ROUTES FOR JOURNEY BUILDER UI ---
 app.post('/save', (req, res) => {
     res.status(200).json({ success: true });
 });
