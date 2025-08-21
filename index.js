@@ -238,9 +238,18 @@ app.get('/config.json', (req, res) => {
     }
 });
 
-// Main endpoint for Journey Builder
+// Main endpoint for Journey Builder - Enhanced with comprehensive logging
 app.post('/execute', async (req, res) => {
-    console.log('Execute endpoint called:', JSON.stringify(req.body, null, 2));
+    const startTime = new Date();
+    const requestId = Math.random().toString(36).substr(2, 9);
+    
+    console.log(`\n🌦️ [${requestId}] Weather Activity Execute Started at ${startTime.toISOString()}`);
+    console.log(`📨 [${requestId}] Request Headers:`, {
+        'content-type': req.headers['content-type'],
+        'user-agent': req.headers['user-agent'],
+        'x-jwt-assertion': req.headers['x-jwt-assertion'] ? 'Present' : 'Missing'
+    });
+    console.log(`📝 [${requestId}] Request Body:`, JSON.stringify(req.body, null, 2));
     
     const token = req.headers['x-jwt-assertion'];
     const weatherApiKey = process.env.WEATHER_API_KEY;
@@ -354,7 +363,16 @@ app.post('/execute', async (req, res) => {
             }
         }
         
-        console.log(`Weather check result: ${currentWeather} -> ${outcome}`);
+        const processingTime = new Date() - startTime;
+        console.log(`🎯 [${requestId}] Weather Analysis: ${currentWeather} -> ${outcome}`);
+        console.log(`🌡️ [${requestId}] Weather Details:`, {
+            condition: currentWeather,
+            description: description,
+            temperature: `${temperature}°C`,
+            humidity: `${humidity}%`,
+            location: `${lat}, ${lon}`
+        });
+        console.log(`✅ [${requestId}] Request completed in ${processingTime}ms`);
         
         const result = {
             branchResult: outcome,
@@ -363,9 +381,13 @@ app.post('/execute', async (req, res) => {
             humidity: humidity,
             description: description,
             coordinates: { lat, lon },
-            contactKey: contactKey
+            contactKey: contactKey,
+            requestId: requestId,
+            processingTime: processingTime,
+            timestamp: startTime.toISOString()
         };
         
+        console.log(`📤 [${requestId}] Response:`, JSON.stringify(result, null, 2));
         res.status(200).json(result);
         
     } catch (error) {
@@ -601,6 +623,142 @@ app.get('/health', (req, res) => {
     
     res.status(200).json(health);
 });
+
+// Test endpoint for validating weather activity functionality
+app.post('/test', async (req, res) => {
+    console.log('\n🧪 TEST ENDPOINT CALLED');
+    console.log('Test request:', JSON.stringify(req.body, null, 2));
+    
+    try {
+        const { testType, ...testData } = req.body;
+        
+        switch (testType) {
+            case 'weather':
+                return await testWeatherAPI(req, res, testData);
+            case 'execute':
+                return await testExecuteEndpoint(req, res, testData);
+            case 'geocoding':
+                return await testGeocodingAPI(req, res, testData);
+            default:
+                return res.json({
+                    status: 'success',
+                    message: 'Weather Activity Test Endpoint',
+                    availableTests: [
+                        'weather - Test weather API with coordinates',
+                        'execute - Test full execute flow with mock data', 
+                        'geocoding - Test location geocoding'
+                    ],
+                    examples: {
+                        weather: {
+                            testType: 'weather',
+                            lat: 40.7128,
+                            lon: -74.0060
+                        },
+                        execute: {
+                            testType: 'execute',
+                            contactKey: 'test-contact-123',
+                            locationField: 'New York',
+                            locationFieldType: 'city',
+                            weatherConditions: 'rain,snow'
+                        },
+                        geocoding: {
+                            testType: 'geocoding',
+                            location: 'New York',
+                            type: 'city'
+                        }
+                    }
+                });
+        }
+    } catch (error) {
+        console.error('Test endpoint error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Test weather API functionality
+async function testWeatherAPI(req, res, { lat = 40.7128, lon = -74.0060 }) {
+    const weatherApiKey = process.env.WEATHER_API_KEY;
+    
+    if (!weatherApiKey) {
+        return res.status(500).json({ error: 'Weather API key not configured' });
+    }
+    
+    try {
+        console.log(`🧪 Testing weather API for coordinates: ${lat}, ${lon}`);
+        const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${weatherApiKey}&units=metric`;
+        const response = await axios.get(weatherUrl);
+        
+        return res.json({
+            status: 'success',
+            test: 'Weather API',
+            coordinates: { lat, lon },
+            weather: {
+                condition: response.data.weather[0].main,
+                description: response.data.weather[0].description,
+                temperature: `${Math.round(response.data.main.temp)}°C`,
+                humidity: `${response.data.main.humidity}%`
+            },
+            rawResponse: response.data
+        });
+    } catch (error) {
+        console.error('Weather API test failed:', error);
+        return res.status(500).json({
+            status: 'error',
+            test: 'Weather API',
+            error: error.message
+        });
+    }
+}
+
+// Test geocoding functionality
+async function testGeocodingAPI(req, res, { location = 'New York', type = 'city' }) {
+    const weatherApiKey = process.env.WEATHER_API_KEY;
+    
+    if (!weatherApiKey) {
+        return res.status(500).json({ error: 'Weather API key not configured' });
+    }
+    
+    try {
+        console.log(`🧪 Testing geocoding for: ${location} (${type})`);
+        const geoResult = await geocodeLocation(location, type, weatherApiKey);
+        
+        return res.json({
+            status: 'success',
+            test: 'Geocoding API',
+            input: { location, type },
+            result: geoResult
+        });
+    } catch (error) {
+        console.error('Geocoding test failed:', error);
+        return res.status(500).json({
+            status: 'error',
+            test: 'Geocoding API',
+            error: error.message
+        });
+    }
+}
+
+// Test execute endpoint with mock data
+async function testExecuteEndpoint(req, res, testData) {
+    const mockRequest = {
+        inArguments: [{
+            contactKey: testData.contactKey || 'test-contact-123',
+            locationField: testData.locationField || 'New York',
+            locationFieldType: testData.locationFieldType || 'city',
+            weatherConditions: testData.weatherConditions || 'rain,snow'
+        }]
+    };
+    
+    console.log('🧪 Testing execute endpoint with mock data:', mockRequest);
+    
+    return res.json({
+        status: 'test_info',
+        test: 'Execute Endpoint',
+        mockRequest: mockRequest,
+        message: 'To fully test execute endpoint, use SFMC Journey Builder or make a direct POST to /execute',
+        instructions: 'Monitor server logs for detailed execution results when the activity runs in SFMC'
+    });
+}
 
 // Global error handler
 app.use((err, req, res, next) => {

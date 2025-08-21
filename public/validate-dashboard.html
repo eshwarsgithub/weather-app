@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Weather Activity Validation Dashboard</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f7fa;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .card h2 {
+            color: #34495e;
+            margin-top: 0;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .card h2::before {
+            content: '🧪';
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+        
+        .test-form {
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        
+        button {
+            background: #3498db;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            background: #2980b9;
+        }
+        
+        button:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+        
+        .result {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .result.success {
+            background: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+        
+        .result.error {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+        
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .status-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .status-indicator {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        
+        .monitoring-section {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+        
+        .logs-container {
+            background: #1e1e1e;
+            color: #ffffff;
+            border-radius: 5px;
+            padding: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌦️ Weather Activity Validation Dashboard</h1>
+        
+        <!-- Status Overview -->
+        <div class="status-grid">
+            <div class="status-card">
+                <div class="status-indicator">🔗</div>
+                <h3>API Connection</h3>
+                <div id="api-status">Checking...</div>
+            </div>
+            <div class="status-card">
+                <div class="status-indicator">⚙️</div>
+                <h3>Configuration</h3>
+                <div id="config-status">Checking...</div>
+            </div>
+            <div class="status-card">
+                <div class="status-indicator">🌍</div>
+                <h3>Weather API</h3>
+                <div id="weather-status">Checking...</div>
+            </div>
+            <div class="status-card">
+                <div class="status-indicator">📍</div>
+                <h3>Geocoding</h3>
+                <div id="geocoding-status">Checking...</div>
+            </div>
+        </div>
+        
+        <!-- Test Dashboard -->
+        <div class="dashboard">
+            <!-- Weather API Test -->
+            <div class="card">
+                <h2>Weather API Test</h2>
+                <div class="test-form">
+                    <div class="form-group">
+                        <label>Latitude:</label>
+                        <input type="number" id="weather-lat" value="40.7128" step="any">
+                    </div>
+                    <div class="form-group">
+                        <label>Longitude:</label>
+                        <input type="number" id="weather-lon" value="-74.0060" step="any">
+                    </div>
+                    <button onclick="testWeatherAPI()">Test Weather API</button>
+                </div>
+                <div id="weather-result" class="result" style="display: none;"></div>
+            </div>
+            
+            <!-- Geocoding Test -->
+            <div class="card">
+                <h2>Geocoding Test</h2>
+                <div class="test-form">
+                    <div class="form-group">
+                        <label>Location:</label>
+                        <input type="text" id="geocoding-location" value="New York">
+                    </div>
+                    <div class="form-group">
+                        <label>Type:</label>
+                        <select id="geocoding-type">
+                            <option value="city">City</option>
+                            <option value="zipcode">ZIP Code</option>
+                            <option value="address">Address</option>
+                        </select>
+                    </div>
+                    <button onclick="testGeocoding()">Test Geocoding</button>
+                </div>
+                <div id="geocoding-result" class="result" style="display: none;"></div>
+            </div>
+            
+            <!-- Execute Test -->
+            <div class="card">
+                <h2>Execute Endpoint Test</h2>
+                <div class="test-form">
+                    <div class="form-group">
+                        <label>Contact Key:</label>
+                        <input type="text" id="execute-contact" value="test-contact-123">
+                    </div>
+                    <div class="form-group">
+                        <label>Location Field:</label>
+                        <input type="text" id="execute-location" value="New York">
+                    </div>
+                    <div class="form-group">
+                        <label>Location Type:</label>
+                        <select id="execute-type">
+                            <option value="city">City</option>
+                            <option value="zipcode">ZIP Code</option>
+                            <option value="coordinates">Coordinates</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Weather Conditions:</label>
+                        <input type="text" id="execute-conditions" value="rain,snow">
+                    </div>
+                    <button onclick="testExecute()">Test Execute</button>
+                </div>
+                <div id="execute-result" class="result" style="display: none;"></div>
+            </div>
+            
+            <!-- Direct Execute Test -->
+            <div class="card">
+                <h2>Direct Execute Test</h2>
+                <div class="test-form">
+                    <p style="color: #666; font-size: 14px;">
+                        This tests the actual execute endpoint with mock SFMC data.
+                    </p>
+                    <div class="form-group">
+                        <label>Test Location:</label>
+                        <select id="direct-location">
+                            <option value="London">London, UK</option>
+                            <option value="Miami">Miami, FL</option>
+                            <option value="Seattle">Seattle, WA</option>
+                            <option value="Sydney">Sydney, Australia</option>
+                            <option value="Tokyo">Tokyo, Japan</option>
+                        </select>
+                    </div>
+                    <button onclick="testDirectExecute()">Test Direct Execute</button>
+                </div>
+                <div id="direct-result" class="result" style="display: none;"></div>
+            </div>
+        </div>
+        
+        <!-- Real-time Monitoring -->
+        <div class="monitoring-section">
+            <h2>🔍 Real-time Activity Monitoring</h2>
+            <p>This section shows what happens when your activity runs in SFMC Journey Builder:</p>
+            
+            <h3>SFMC Testing Instructions:</h3>
+            <ol>
+                <li><strong>Create a test journey</strong> with your weather activity</li>
+                <li><strong>Add a test contact</strong> with location data</li>
+                <li><strong>Activate the journey</strong> and inject the test contact</li>
+                <li><strong>Monitor this dashboard</strong> for real-time execution logs</li>
+            </ol>
+            
+            <h3>Server Logs (Last 10 minutes):</h3>
+            <div class="logs-container" id="server-logs">
+                No logs yet. Logs will appear here when the activity runs in SFMC.
+            </div>
+            <button onclick="refreshLogs()">Refresh Logs</button>
+        </div>
+    </div>
+
+    <script>
+        // Base URL for API calls
+        const BASE_URL = window.location.origin;
+        
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            checkSystemStatus();
+            // Auto-refresh logs every 30 seconds
+            setInterval(refreshLogs, 30000);
+        });
+        
+        // Check overall system status
+        async function checkSystemStatus() {
+            try {
+                const response = await fetch(`${BASE_URL}/health`);
+                const health = await response.json();
+                
+                document.getElementById('api-status').innerHTML = 
+                    `<strong style="color: #27ae60;">✅ Connected</strong>`;
+                    
+                document.getElementById('config-status').innerHTML = 
+                    health.environment.weatherApiConfigured && health.environment.jwtSecretConfigured 
+                    ? `<strong style="color: #27ae60;">✅ Complete</strong>`
+                    : `<strong style="color: #e74c3c;">❌ Missing Keys</strong>`;
+                    
+                // Test weather API
+                testWeatherAPI(true);
+                // Test geocoding
+                testGeocoding(true);
+                
+            } catch (error) {
+                document.getElementById('api-status').innerHTML = 
+                    `<strong style="color: #e74c3c;">❌ Error</strong>`;
+            }
+        }
+        
+        // Test Weather API
+        async function testWeatherAPI(isStatusCheck = false) {
+            const lat = document.getElementById('weather-lat').value;
+            const lon = document.getElementById('weather-lon').value;
+            const resultDiv = document.getElementById('weather-result');
+            const statusDiv = document.getElementById('weather-status');
+            
+            if (!isStatusCheck) {
+                resultDiv.style.display = 'block';
+                resultDiv.textContent = 'Testing weather API...';
+                resultDiv.className = 'result';
+            }
+            
+            try {
+                const response = await fetch(`${BASE_URL}/test`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        testType: 'weather',
+                        lat: parseFloat(lat),
+                        lon: parseFloat(lon)
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (isStatusCheck) {
+                    statusDiv.innerHTML = response.ok 
+                        ? `<strong style="color: #27ae60;">✅ Working</strong>`
+                        : `<strong style="color: #e74c3c;">❌ Error</strong>`;
+                } else {
+                    resultDiv.textContent = JSON.stringify(result, null, 2);
+                    resultDiv.className = response.ok ? 'result success' : 'result error';
+                }
+            } catch (error) {
+                const errorText = `Error: ${error.message}`;
+                if (isStatusCheck) {
+                    statusDiv.innerHTML = `<strong style="color: #e74c3c;">❌ Error</strong>`;
+                } else {
+                    resultDiv.textContent = errorText;
+                    resultDiv.className = 'result error';
+                }
+            }
+        }
+        
+        // Test Geocoding
+        async function testGeocoding(isStatusCheck = false) {
+            const location = document.getElementById('geocoding-location').value;
+            const type = document.getElementById('geocoding-type').value;
+            const resultDiv = document.getElementById('geocoding-result');
+            const statusDiv = document.getElementById('geocoding-status');
+            
+            if (!isStatusCheck) {
+                resultDiv.style.display = 'block';
+                resultDiv.textContent = 'Testing geocoding...';
+                resultDiv.className = 'result';
+            }
+            
+            try {
+                const response = await fetch(`${BASE_URL}/test`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        testType: 'geocoding',
+                        location: location,
+                        type: type
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (isStatusCheck) {
+                    statusDiv.innerHTML = response.ok 
+                        ? `<strong style="color: #27ae60;">✅ Working</strong>`
+                        : `<strong style="color: #e74c3c;">❌ Error</strong>`;
+                } else {
+                    resultDiv.textContent = JSON.stringify(result, null, 2);
+                    resultDiv.className = response.ok ? 'result success' : 'result error';
+                }
+            } catch (error) {
+                const errorText = `Error: ${error.message}`;
+                if (isStatusCheck) {
+                    statusDiv.innerHTML = `<strong style="color: #e74c3c;">❌ Error</strong>`;
+                } else {
+                    resultDiv.textContent = errorText;
+                    resultDiv.className = 'result error';
+                }
+            }
+        }
+        
+        // Test Execute Endpoint
+        async function testExecute() {
+            const resultDiv = document.getElementById('execute-result');
+            resultDiv.style.display = 'block';
+            resultDiv.textContent = 'Testing execute endpoint...';
+            resultDiv.className = 'result';
+            
+            try {
+                const response = await fetch(`${BASE_URL}/test`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        testType: 'execute',
+                        contactKey: document.getElementById('execute-contact').value,
+                        locationField: document.getElementById('execute-location').value,
+                        locationFieldType: document.getElementById('execute-type').value,
+                        weatherConditions: document.getElementById('execute-conditions').value
+                    })
+                });
+                
+                const result = await response.json();
+                resultDiv.textContent = JSON.stringify(result, null, 2);
+                resultDiv.className = response.ok ? 'result success' : 'result error';
+            } catch (error) {
+                resultDiv.textContent = `Error: ${error.message}`;
+                resultDiv.className = 'result error';
+            }
+        }
+        
+        // Test Direct Execute
+        async function testDirectExecute() {
+            const location = document.getElementById('direct-location').value;
+            const resultDiv = document.getElementById('direct-result');
+            resultDiv.style.display = 'block';
+            resultDiv.textContent = 'Testing direct execute...';
+            resultDiv.className = 'result';
+            
+            try {
+                const response = await fetch(`${BASE_URL}/execute`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        inArguments: [{
+                            contactKey: 'dashboard-test-' + Date.now(),
+                            locationField: location,
+                            locationFieldType: 'city',
+                            weatherConditions: 'rain,snow,storm'
+                        }]
+                    })
+                });
+                
+                const result = await response.json();
+                resultDiv.textContent = JSON.stringify(result, null, 2);
+                resultDiv.className = response.ok ? 'result success' : 'result error';
+            } catch (error) {
+                resultDiv.textContent = `Error: ${error.message}`;
+                resultDiv.className = 'result error';
+            }
+        }
+        
+        // Refresh server logs (placeholder - would need server-side log endpoint)
+        function refreshLogs() {
+            const logsDiv = document.getElementById('server-logs');
+            logsDiv.textContent = 'Log monitoring requires server-side implementation.\n\nTo monitor real activity:\n1. Check Vercel deployment logs\n2. Monitor SFMC Journey Builder activity status\n3. Check Data Extension for outcome tracking\n\nLast updated: ' + new Date().toLocaleString();
+        }
+    </script>
+</body>
+</html>
