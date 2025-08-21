@@ -5,15 +5,42 @@
 (function() {
     'use strict';
     
-    // Wait for Postmonger to be available
+    // Wait for Postmonger to be available with timeout
     function waitForPostmonger(callback) {
-        if (window.Postmonger) {
-            callback();
-        } else {
-            setTimeout(function() {
-                waitForPostmonger(callback);
-            }, 100);
+        var attempts = 0;
+        var maxAttempts = 100; // 10 seconds maximum wait
+        
+        function check() {
+            if (window.Postmonger) {
+                console.log('Postmonger found after', attempts, 'attempts');
+                callback();
+            } else if (attempts < maxAttempts) {
+                attempts++;
+                setTimeout(check, 100);
+            } else {
+                console.error('Postmonger not available after 10 seconds, creating mock');
+                // Create a minimal mock for testing
+                window.Postmonger = {
+                    Session: function() {
+                        return {
+                            on: function(event, callback) {
+                                console.log('Mock postmonger on:', event);
+                                if (event === 'initActivity') {
+                                    setTimeout(function() {
+                                        callback({});
+                                    }, 100);
+                                }
+                            },
+                            trigger: function(event, data) {
+                                console.log('Mock postmonger trigger:', event, data);
+                            }
+                        };
+                    }
+                };
+                callback();
+            }
         }
+        check();
     }
     
     waitForPostmonger(function() {
@@ -116,7 +143,14 @@
     }
 
     function populateDataFields(interaction) {
+        console.log('Populating data fields with interaction:', interaction);
+        
         var $select = $('#location-field');
+        if ($select.length === 0) {
+            console.error('Location field select element not found!');
+            return;
+        }
+        
         $select.empty();
         $select.append('<option value="">-- Select a field --</option>');
 
@@ -126,14 +160,29 @@
         $select.append('<option value="{{Contact.Attribute.Demographics.State}}">State</option>');
         $select.append('<option value="{{Contact.Attribute.Demographics.PostalCode}}">Postal Code</option>');
         $select.append('<option value="{{Contact.Attribute.Demographics.Country}}">Country</option>');
+        $select.append('<option value="{{Contact.Key}}">Contact Key</option>');
         $select.append('</optgroup>');
 
         // Add event data if available
-        if (interaction && interaction.triggers) {
+        if (interaction && interaction.triggers && interaction.triggers.length > 0) {
+            console.log('Found triggers:', interaction.triggers.length);
             $select.append('<optgroup label="Event Data">');
-            interaction.triggers.forEach(function(trigger) {
+            interaction.triggers.forEach(function(trigger, index) {
+                console.log('Processing trigger', index, trigger);
                 if (trigger.metaData && trigger.metaData.dataExtension) {
                     var de = trigger.metaData.dataExtension;
+                    console.log('Found data extension:', de.name, 'with', de.fields ? de.fields.length : 0, 'fields');
+                    if (de.fields) {
+                        de.fields.forEach(function(field) {
+                            var fieldPath = '{{Event.' + de.name + '.' + field.name + '}}';
+                            $select.append('<option value="' + fieldPath + '">' + field.name + ' (Event)</option>');
+                            console.log('Added field:', field.name);
+                        });
+                    }
+                } else if (trigger.dataExtension) {
+                    // Alternative structure
+                    var de = trigger.dataExtension;
+                    console.log('Found alternative data extension:', de.name);
                     if (de.fields) {
                         de.fields.forEach(function(field) {
                             var fieldPath = '{{Event.' + de.name + '.' + field.name + '}}';
@@ -143,14 +192,29 @@
                 }
             });
             $select.append('</optgroup>');
+        } else {
+            console.log('No triggers found in interaction');
+        }
+
+        // Add entry data if available
+        if (interaction && interaction.entryData) {
+            console.log('Found entry data:', interaction.entryData);
+            $select.append('<optgroup label="Entry Data">');
+            // Add entry data fields dynamically
+            $select.append('</optgroup>');
         }
 
         // Add custom data extension fields
-        $select.append('<optgroup label="Custom Fields">');
-        $select.append('<option value="{{Contact.Attribute.CustomDE.Latitude}}">Custom Latitude</option>');
-        $select.append('<option value="{{Contact.Attribute.CustomDE.Longitude}}">Custom Longitude</option>');
-        $select.append('<option value="{{Contact.Attribute.CustomDE.Location}}">Custom Location</option>');
+        $select.append('<optgroup label="Common Location Fields">');
+        $select.append('<option value="{{Contact.Attribute.Address}}">Address</option>');
+        $select.append('<option value="{{Contact.Attribute.City}}">City</option>');
+        $select.append('<option value="{{Contact.Attribute.State}}">State</option>');
+        $select.append('<option value="{{Contact.Attribute.PostalCode}}">Postal Code</option>');
+        $select.append('<option value="{{Contact.Attribute.Latitude}}">Latitude</option>');
+        $select.append('<option value="{{Contact.Attribute.Longitude}}">Longitude</option>');
         $select.append('</optgroup>');
+        
+        console.log('Finished populating data fields. Total options:', $select.find('option').length);
     }
 
     function save() {
