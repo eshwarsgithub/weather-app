@@ -260,12 +260,19 @@
         
         function loadCustomActivity() {
             const script = document.createElement('script');
-            script.src = 'customActivity.js';
+            script.src = 'https://weather-app-kappa-three-25.vercel.app/customActivity.js';
             script.onload = function() {
                 console.log('Custom activity loaded successfully');
             };
-            script.onerror = function() {
-                console.error('Failed to load custom activity');
+            script.onerror = function(e) {
+                console.error('Failed to load custom activity:', e);
+                // Try alternative loading method
+                const fallbackScript = document.createElement('script');
+                fallbackScript.innerHTML = `
+                    console.log('Using fallback custom activity');
+                    window.customActivityLoaded = true;
+                `;
+                document.head.appendChild(fallbackScript);
             };
             document.head.appendChild(script);
         }

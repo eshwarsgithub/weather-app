@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Weather Activity Configuration</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: white;
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        select, input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            background: white;
+        }
+        select:focus, input:focus {
+            outline: none;
+            border-color: #0066cc;
+            box-shadow: 0 0 0 2px rgba(0,102,204,0.2);
+        }
+        .required {
+            color: red;
+        }
+        .help-text {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        .outcomes {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+            border: 1px solid #e9ecef;
+        }
+        h2 {
+            color: #333;
+            margin-top: 0;
+        }
+        h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="weather-config">
+        <h2>🌦️ Configure Weather Activity</h2>
+        <p>Configure how this activity will check weather conditions for your contacts.</p>
+        
+        <div class="form-group">
+            <label for="location-field">
+                <span class="required">*</span> Location Data Field
+            </label>
+            <select id="location-field" required>
+                <option value="">-- Select a field containing location data --</option>
+                <option value="{{Contact.Attribute.Demographics.City}}">City</option>
+                <option value="{{Contact.Attribute.Demographics.State}}">State</option>
+                <option value="{{Contact.Attribute.Demographics.PostalCode}}">Postal Code</option>
+                <option value="{{Contact.Attribute.Demographics.Country}}">Country</option>
+                <option value="{{Contact.Key}}">Contact Key</option>
+                <option value="{{Contact.Attribute.Address}}">Address</option>
+                <option value="{{Contact.Attribute.Latitude}}">Latitude</option>
+                <option value="{{Contact.Attribute.Longitude}}">Longitude</option>
+            </select>
+            <div class="help-text">
+                Select the field from your Journey entry data that contains location information.
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="location-field-type">
+                <span class="required">*</span> Location Data Type
+            </label>
+            <select id="location-field-type" required>
+                <option value="">-- Select data type --</option>
+                <option value="coordinates">Coordinates (lat,lng)</option>
+                <option value="zipcode">ZIP/Postal Code</option>
+                <option value="city">City Name</option>
+                <option value="address">Full Address</option>
+            </select>
+            <div class="help-text">
+                Specify what type of location data the selected field contains.
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="weather-conditions">Weather Conditions to Check</label>
+            <select id="weather-conditions">
+                <option value="rain,snow,storm">Rain, Snow, or Storm (Default)</option>
+                <option value="rain">Rain Only</option>
+                <option value="snow">Snow Only</option>
+                <option value="storm">Storm Only</option>
+                <option value="clear">Clear Weather</option>
+                <option value="clouds">Cloudy Weather</option>
+                <option value="custom">Custom Conditions</option>
+            </select>
+            <div class="help-text">
+                Select which weather conditions should trigger the "Adverse Weather" path.
+            </div>
+        </div>
+
+        <div class="form-group" id="custom-conditions-group" style="display: none;">
+            <label for="custom-conditions">Custom Weather Conditions</label>
+            <input type="text" id="custom-conditions" placeholder="e.g., Rain,Thunderstorm,Snow" />
+            <div class="help-text">
+                Enter weather conditions separated by commas (Rain, Snow, Thunderstorm, Drizzle, etc.).
+            </div>
+        </div>
+
+        <div class="outcomes">
+            <h3>Activity Outcomes</h3>
+            <ul>
+                <li><strong>Adverse Weather:</strong> Contact experiences specified weather conditions</li>
+                <li><strong>Good Weather:</strong> Contact has clear or mild weather conditions</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        console.log('Simple weather activity config loaded');
+        console.log('Location:', window.location.href);
+        console.log('In iframe:', window.parent !== window);
+        
+        // Simple postmonger mock for SFMC communication
+        var mockConnection = {
+            on: function(event, callback) {
+                console.log('Mock connection - listening for:', event);
+                if (event === 'initActivity') {
+                    setTimeout(function() {
+                        callback({});
+                    }, 100);
+                }
+            },
+            trigger: function(event, data) {
+                console.log('Mock connection - triggering:', event, data);
+                if (event === 'ready') {
+                    console.log('Activity is ready for SFMC');
+                }
+                if (event === 'updateActivity') {
+                    console.log('Saving activity configuration:', data);
+                }
+            }
+        };
+        
+        // Show/hide custom conditions based on selection
+        document.getElementById('weather-conditions').addEventListener('change', function() {
+            var customGroup = document.getElementById('custom-conditions-group');
+            if (this.value === 'custom') {
+                customGroup.style.display = 'block';
+            } else {
+                customGroup.style.display = 'none';
+            }
+        });
+        
+        // Validate form
+        function validateForm() {
+            var locationField = document.getElementById('location-field').value;
+            var locationFieldType = document.getElementById('location-field-type').value;
+            
+            if (!locationField || !locationFieldType) {
+                return false;
+            }
+            return true;
+        }
+        
+        // Mock save function
+        function saveConfiguration() {
+            if (!validateForm()) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            var config = {
+                locationField: document.getElementById('location-field').value,
+                locationFieldType: document.getElementById('location-field-type').value,
+                weatherConditions: document.getElementById('weather-conditions').value
+            };
+            
+            console.log('Saving configuration:', config);
+            mockConnection.trigger('updateActivity', {
+                arguments: {
+                    execute: {
+                        inArguments: [config]
+                    }
+                }
+            });
+        }
+        
+        // Initialize mock postmonger communication
+        setTimeout(function() {
+            console.log('Initializing mock SFMC communication');
+            mockConnection.trigger('ready');
+            mockConnection.on('initActivity', function(data) {
+                console.log('Activity initialized with data:', data);
+            });
+        }, 500);
+    </script>
+</body>
+</html>
