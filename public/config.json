@@ -94,7 +94,7 @@
     }
   },
   "edit": {
-    "url": "https://weather-app-kappa-three-25.vercel.app/edit-simple.html",
+    "url": "https://weather-app-kappa-three-25.vercel.app/edit.html",
     "height": 600,
     "width": 800
   },
