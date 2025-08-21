@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Weather Activity Configuration</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            font-family: 'Salesforce Sans', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #fafaf9;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #16325c;
+            margin-bottom: 10px;
+            font-size: 24px;
+            font-weight: 700;
+        }
+        
+        .subtitle {
+            color: #696e77;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #181818;
+            font-size: 14px;
+        }
+        
+        .required {
+            color: #c23934;
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d8dde6;
+            border-radius: 4px;
+            font-size: 14px;
+            background: white;
+            box-sizing: border-box;
+        }
+        
+        select:focus, input:focus {
+            outline: none;
+            border-color: #1589ee;
+            box-shadow: 0 0 0 2px rgba(21, 137, 238, 0.1);
+        }
+        
+        .help-text {
+            font-size: 12px;
+            color: #696e77;
+            margin-top: 6px;
+            line-height: 1.4;
+        }
+        
+        .outcomes-box {
+            background: #f4f6f9;
+            border: 1px solid #d8dde6;
+            border-radius: 4px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        
+        .outcomes-box h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #16325c;
+            font-size: 16px;
+        }
+        
+        .outcomes-box ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        
+        .outcomes-box li {
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+        
+        .status-indicator {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #1589ee;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            font-size: 14px;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .status-indicator.show {
+            display: block;
+        }
+        
+        .debug-info {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 20px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="status-indicator" id="status">Loading Weather Activity...</div>
+    
+    <div class="container">
+        <h1>🌦️ Weather-Based Decision Split</h1>
+        <p class="subtitle">Configure how this activity routes contacts based on current weather conditions at their location.</p>
+        
+        <form id="weather-form">
+            <div class="form-group">
+                <label for="location-field">
+                    <span class="required">*</span> Location Data Field
+                </label>
+                <select id="location-field" required>
+                    <option value="">-- Select a field containing location data --</option>
+                    <optgroup label="Contact Attributes">
+                        <option value="{{Contact.Attribute.Demographics.City}}">Demographics City</option>
+                        <option value="{{Contact.Attribute.Demographics.State}}">Demographics State</option>
+                        <option value="{{Contact.Attribute.Demographics.PostalCode}}">Demographics Postal Code</option>
+                        <option value="{{Contact.Attribute.Demographics.Country}}">Demographics Country</option>
+                    </optgroup>
+                    <optgroup label="Standard Contact Fields">
+                        <option value="{{Contact.Key}}">Contact Key</option>
+                        <option value="{{Contact.Attribute.City}}">City</option>
+                        <option value="{{Contact.Attribute.State}}">State</option>
+                        <option value="{{Contact.Attribute.PostalCode}}">Postal Code</option>
+                        <option value="{{Contact.Attribute.Country}}">Country</option>
+                        <option value="{{Contact.Attribute.Address}}">Address</option>
+                    </optgroup>
+                    <optgroup label="Location Coordinates">
+                        <option value="{{Contact.Attribute.Latitude}}">Latitude</option>
+                        <option value="{{Contact.Attribute.Longitude}}">Longitude</option>
+                        <option value="{{Contact.Attribute.Coordinates}}">Coordinates</option>
+                    </optgroup>
+                </select>
+                <div class="help-text">
+                    Select the field from your Contact or Journey entry data that contains location information.
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="location-field-type">
+                    <span class="required">*</span> Location Data Type
+                </label>
+                <select id="location-field-type" required>
+                    <option value="">-- Select the type of location data --</option>
+                    <option value="coordinates">Coordinates (latitude,longitude)</option>
+                    <option value="zipcode">ZIP/Postal Code</option>
+                    <option value="city">City Name</option>
+                    <option value="address">Full Address</option>
+                </select>
+                <div class="help-text">
+                    Specify what type of location data the selected field contains. This helps the weather API understand how to process the location.
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="weather-conditions">Weather Conditions to Check</label>
+                <select id="weather-conditions">
+                    <option value="rain,snow,storm">Rain, Snow, or Storm (Default)</option>
+                    <option value="rain">Rain Only</option>
+                    <option value="snow">Snow Only</option>
+                    <option value="storm">Storm/Thunderstorm Only</option>
+                    <option value="clear">Clear Weather Only</option>
+                    <option value="clouds">Cloudy Weather</option>
+                    <option value="custom">Custom Conditions</option>
+                </select>
+                <div class="help-text">
+                    Choose which weather conditions should route contacts to the "Adverse Weather" path.
+                </div>
+            </div>
+
+            <div class="form-group" id="custom-conditions-group" style="display: none;">
+                <label for="custom-conditions">Custom Weather Conditions</label>
+                <input type="text" id="custom-conditions" placeholder="Rain,Thunderstorm,Snow,Drizzle" />
+                <div class="help-text">
+                    Enter specific weather conditions separated by commas. Examples: Rain, Snow, Thunderstorm, Drizzle, Fog, etc.
+                </div>
+            </div>
+        </form>
+
+        <div class="outcomes-box">
+            <h3>Journey Outcomes</h3>
+            <ul>
+                <li><strong>Adverse Weather:</strong> Contact is experiencing weather conditions that match your criteria (rain, snow, storms, etc.)</li>
+                <li><strong>Good Weather:</strong> Contact has clear, mild, or pleasant weather conditions</li>
+            </ul>
+            <p style="margin-top: 15px; font-size: 12px; color: #696e77;">
+                Weather data is fetched in real-time from OpenWeatherMap API based on the contact's location.
+            </p>
+        </div>
+        
+        <div class="debug-info" id="debug-info">
+            <strong>Debug Information:</strong><br>
+            <span id="debug-details">Initializing...</span>
+        </div>
+    </div>
+
+    <!-- Load jQuery from CDN -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Load Postmonger -->
+    <script src="https://cdn.jsdelivr.net/npm/postmonger@0.0.16/postmonger.js"></script>
+    
+    <script>
+        // Global variables
+        var connection = null;
+        var payload = {};
+        
+        // Debug logging
+        function debugLog(message) {
+            console.log('[Weather Activity]', message);
+            var debugElement = document.getElementById('debug-details');
+            if (debugElement) {
+                debugElement.innerHTML += '<br>' + new Date().toLocaleTimeString() + ': ' + message;
+            }
+        }
+        
+        // Show status
+        function showStatus(message, isError = false) {
+            var status = document.getElementById('status');
+            status.textContent = message;
+            status.className = 'status-indicator show';
+            status.style.background = isError ? '#c23934' : '#1589ee';
+            
+            if (!isError) {
+                setTimeout(function() {
+                    status.classList.remove('show');
+                }, 3000);
+            }
+        }
+        
+        // Validate form
+        function validateForm() {
+            var locationField = document.getElementById('location-field').value;
+            var locationType = document.getElementById('location-field-type').value;
+            
+            if (!locationField) {
+                showStatus('Please select a location field', true);
+                return false;
+            }
+            
+            if (!locationType) {
+                showStatus('Please select a location data type', true);
+                return false;
+            }
+            
+            return true;
+        }
+        
+        // Save configuration
+        function saveConfiguration() {
+            debugLog('Save function called');
+            
+            if (!validateForm()) {
+                return;
+            }
+            
+            var weatherConditions = document.getElementById('weather-conditions').value;
+            if (weatherConditions === 'custom') {
+                var customConditions = document.getElementById('custom-conditions').value;
+                if (customConditions) {
+                    weatherConditions = customConditions;
+                } else {
+                    weatherConditions = 'rain,snow,storm';
+                }
+            }
+            
+            // Create payload
+            payload = {
+                arguments: {
+                    execute: {
+                        inArguments: [{
+                            contactKey: "{{Contact.Key}}",
+                            locationField: document.getElementById('location-field').value,
+                            locationFieldType: document.getElementById('location-field-type').value,
+                            weatherConditions: weatherConditions
+                        }],
+                        outArguments: [{
+                            weatherCondition: {
+                                dataType: "Text",
+                                isNullable: false,
+                                direction: "out"
+                            },
+                            temperature: {
+                                dataType: "Number", 
+                                isNullable: true,
+                                direction: "out"
+                            },
+                            humidity: {
+                                dataType: "Number",
+                                isNullable: true, 
+                                direction: "out"
+                            },
+                            description: {
+                                dataType: "Text",
+                                isNullable: true,
+                                direction: "out"
+                            }
+                        }]
+                    }
+                },
+                metaData: {
+                    isConfigured: true
+                }
+            };
+            
+            debugLog('Saving payload: ' + JSON.stringify(payload, null, 2));
+            
+            if (connection) {
+                connection.trigger('updateActivity', payload);
+                showStatus('Configuration saved successfully!');
+            } else {
+                debugLog('No connection available - using mock save');
+                showStatus('Configuration saved (mock mode)');
+            }
+        }
+        
+        // Initialize activity
+        function initializeActivity() {
+            debugLog('Initializing activity');
+            
+            try {
+                if (window.Postmonger) {
+                    connection = new Postmonger.Session();
+                    debugLog('Postmonger connection established');
+                    
+                    // Set up event listeners
+                    connection.on('initActivity', function(data) {
+                        debugLog('Init activity event received: ' + JSON.stringify(data));
+                        
+                        if (data && data.arguments && data.arguments.execute && data.arguments.execute.inArguments) {
+                            var config = data.arguments.execute.inArguments[0];
+                            if (config) {
+                                debugLog('Loading existing configuration');
+                                if (config.locationField) {
+                                    document.getElementById('location-field').value = config.locationField;
+                                }
+                                if (config.locationFieldType) {
+                                    document.getElementById('location-field-type').value = config.locationFieldType;
+                                }
+                                if (config.weatherConditions) {
+                                    document.getElementById('weather-conditions').value = config.weatherConditions;
+                                }
+                            }
+                        }
+                        
+                        showStatus('Activity loaded successfully');
+                    });
+                    
+                    connection.on('clickedNext', saveConfiguration);
+                    connection.on('clickedBack', function() {
+                        debugLog('Back button clicked');
+                    });
+                    
+                    // Request tokens and data
+                    connection.trigger('ready');
+                    connection.trigger('requestTokens');
+                    connection.trigger('requestEndpoints');
+                    connection.trigger('requestInteraction');
+                    
+                    debugLog('Activity initialization complete');
+                    
+                } else {
+                    debugLog('Postmonger not available - running in preview mode');
+                    showStatus('Preview Mode - Postmonger not available');
+                }
+                
+            } catch (error) {
+                debugLog('Error during initialization: ' + error.message);
+                showStatus('Initialization error: ' + error.message, true);
+            }
+        }
+        
+        // Document ready
+        $(document).ready(function() {
+            debugLog('Document ready');
+            debugLog('URL: ' + window.location.href);
+            debugLog('In iframe: ' + (window.parent !== window));
+            debugLog('jQuery version: ' + ($ ? $.fn.jquery : 'Not loaded'));
+            debugLog('Postmonger available: ' + (typeof Postmonger !== 'undefined'));
+            
+            // Show/hide custom conditions
+            $('#weather-conditions').on('change', function() {
+                var customGroup = document.getElementById('custom-conditions-group');
+                if (this.value === 'custom') {
+                    customGroup.style.display = 'block';
+                } else {
+                    customGroup.style.display = 'none';
+                }
+            });
+            
+            // Initialize after a brief delay to ensure everything is loaded
+            setTimeout(initializeActivity, 500);
+            
+            // Manual save button for testing (hidden in SFMC)
+            if (window.parent === window) {
+                var testButton = document.createElement('button');
+                testButton.textContent = 'Test Save Configuration';
+                testButton.style.cssText = 'margin-top: 20px; padding: 10px 20px; background: #1589ee; color: white; border: none; border-radius: 4px; cursor: pointer;';
+                testButton.onclick = saveConfiguration;
+                document.querySelector('.container').appendChild(testButton);
+            }
+        });
+    </script>
+</body>
+</html>
