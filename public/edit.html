@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     
     <!-- Salesforce Lightning Design System -->
-    <link rel="stylesheet" type="text/css" href="https://www.lightningdesignsystem.com/assets/styles/salesforce-lightning-design-system.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/design-system/2.22.2/styles/salesforce-lightning-design-system.min.css" />
     
     <style>
         body {
@@ -211,6 +211,15 @@
             loadPostmonger();
             
             console.log('Weather Activity configuration UI loaded');
+            
+            // Add debug information
+            console.log('jQuery loaded:', typeof $ !== 'undefined');
+            console.log('Page elements found:', {
+                'location-field': $('#location-field').length,
+                'location-field-type': $('#location-field-type').length,
+                'weather-conditions': $('#weather-conditions').length,
+                'step1': $('#step1').length
+            });
         });
     </script>
 </body>

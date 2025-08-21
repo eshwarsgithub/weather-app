@@ -1,0 +1,19 @@
+<svg width="48" height="48" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .icon-fill { fill: #1B96FF; }
+      .cloud-fill { fill: #87CEEB; }
+      .sun-fill { fill: #FFD700; }
+    </style>
+  </defs>
+  
+  <!-- Sun -->
+  <circle cx="24" cy="18" r="8" class="sun-fill"/>
+  <path d="M24 4v4M24 28v4M38 18h-4M14 18h-4M33.66 8.34l-2.83 2.83M17.17 24.83l-2.83 2.83M33.66 27.66l-2.83-2.83M17.17 11.17l-2.83-2.83" stroke="#FFD700" stroke-width="2" stroke-linecap="round"/>
+  
+  <!-- Clouds -->
+  <path d="M36 32c3.31 0 6-2.69 6-6s-2.69-6-6-6c-.55 0-1.07.08-1.57.23-.9-3.03-3.69-5.23-7.43-5.23-3.31 0-6.14 2.19-7.09 5.19-.35-.12-.72-.19-1.11-.19-2.21 0-4 1.79-4 4s1.79 4 4 4h17z" class="cloud-fill"/>
+  
+  <!-- Weather symbol -->
+  <path d="M20 36l2 4h4l2-4M24 32v4" stroke="#1B96FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
