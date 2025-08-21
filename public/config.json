@@ -4,7 +4,9 @@
     "icon": "https://weather-app-kappa-three-25.vercel.app/images/weather-icon.png",
     "iconSmall": "https://weather-app-kappa-three-25.vercel.app/images/weather-icon-small.png",
     "category": "messaging",
-    "isConfigured": false
+    "isConfigured": false,
+    "version": "1.0.0",
+    "configurationDisabled": false
   },
   "type": "RESTDECISION",
   "lang": {
@@ -56,7 +58,8 @@
       "timeout": 30000,
       "retryCount": 3,
       "retryDelay": 2000,
-      "concurrentRequests": 5
+      "concurrentRequests": 5,
+      "customActivityResult": "{{ActivityInstanceId}}"
     }
   },
   "configurationArguments": {
