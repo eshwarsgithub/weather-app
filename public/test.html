@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SFMC Activity Test</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: white;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            background: #f0f8ff;
+            border: 1px solid #0066cc;
+        }
+        .error {
+            background: #ffebee;
+            border-color: #d32f2f;
+            color: #d32f2f;
+        }
+        .success {
+            background: #e8f5e8;
+            border-color: #4caf50;
+            color: #2e7d32;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌦️ SFMC Weather Activity Test</h1>
+        <div id="status" class="status">Loading...</div>
+        
+        <h3>Environment Information:</h3>
+        <ul>
+            <li><strong>URL:</strong> <span id="url"></span></li>
+            <li><strong>Referrer:</strong> <span id="referrer"></span></li>
+            <li><strong>In iframe:</strong> <span id="iframe"></span></li>
+            <li><strong>Parent origin:</strong> <span id="parent-origin"></span></li>
+        </ul>
+        
+        <h3>Test Configuration Form:</h3>
+        <div style="margin: 20px 0;">
+            <label for="test-field">Location Field:</label><br>
+            <select id="test-field" style="width: 100%; padding: 8px; margin: 5px 0;">
+                <option value="">-- Select a field --</option>
+                <option value="{{Contact.Attribute.City}}">City</option>
+                <option value="{{Contact.Attribute.PostalCode}}">Postal Code</option>
+                <option value="{{Contact.Key}}">Contact Key</option>
+            </select>
+        </div>
+        
+        <div style="margin: 20px 0;">
+            <label for="test-type">Location Type:</label><br>
+            <select id="test-type" style="width: 100%; padding: 8px; margin: 5px 0;">
+                <option value="">-- Select type --</option>
+                <option value="city">City Name</option>
+                <option value="zipcode">ZIP/Postal Code</option>
+                <option value="coordinates">Coordinates</option>
+            </select>
+        </div>
+        
+        <button onclick="testSave()" style="background: #0066cc; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;">
+            Test Save Configuration
+        </button>
+        
+        <div id="postmonger-status" class="status" style="margin-top: 20px;">
+            Postmonger Status: <span id="postmonger-text">Checking...</span>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/postmonger@0.0.16/postmonger.js"></script>
+    
+    <script>
+        $(document).ready(function() {
+            // Update environment information
+            $('#url').text(window.location.href);
+            $('#referrer').text(document.referrer || 'None');
+            $('#iframe').text(window.parent !== window ? 'Yes' : 'No');
+            
+            try {
+                $('#parent-origin').text(window.parent.location.origin);
+            } catch(e) {
+                $('#parent-origin').text('Cross-origin (SFMC)');
+            }
+            
+            // Test postmonger
+            setTimeout(function() {
+                if (window.Postmonger) {
+                    $('#postmonger-text').text('✅ Loaded successfully');
+                    $('#postmonger-status').removeClass('status').addClass('success');
+                    
+                    // Try to establish connection
+                    try {
+                        var connection = new Postmonger.Session();
+                        connection.trigger('ready');
+                        $('#status').html('✅ Ready for SFMC communication').removeClass('status').addClass('success');
+                    } catch(e) {
+                        $('#status').html('⚠️ Postmonger loaded but connection failed: ' + e.message).removeClass('status').addClass('error');
+                    }
+                } else {
+                    $('#postmonger-text').text('❌ Failed to load');
+                    $('#postmonger-status').removeClass('status').addClass('error');
+                    $('#status').html('❌ Postmonger library not available').removeClass('status').addClass('error');
+                }
+            }, 2000);
+        });
+        
+        function testSave() {
+            var field = $('#test-field').val();
+            var type = $('#test-type').val();
+            
+            if (!field || !type) {
+                alert('Please select both location field and type');
+                return;
+            }
+            
+            alert('Test configuration saved:\nField: ' + field + '\nType: ' + type);
+            console.log('Test save:', {field: field, type: type});
+        }
+    </script>
+</body>
+</html>

@@ -1,8 +1,8 @@
 {
   "workflowApiVersion": "1.1",
   "metaData": {
-    "icon": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8ZGVmcz4KICA8L2RlZnM+CiAgPCEtLSBTdW4gLS0+CiAgPGNpcmNsZSBjeD0iMjQiIGN5PSIxOCIgcj0iOCIgZmlsbD0iI0ZGRDcwMCIvPgogIDxwYXRoIGQ9Ik0yNCA0djRNMjQgMjh2NE0zOCAxOGgtNE0xNCAxOGgtNE0zMy42NiA4LjM0bC0yLjgzIDIuODNNMTcuMTcgMjQuODNsLTIuODMgMi44M00zMy42NiAyNy42NmwtMi44My0yLjgzTTE3LjE3IDExLjE3bC0yLjgzLTIuODMiIHN0cm9rZT0iI0ZGRDcwMCIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICA8IS0tIENsb3VkcyAtLT4KICA8cGF0aCBkPSJNMzYgMzJjMy4zMSAwIDYtMi42OSA2LTZzLTIuNjktNi02LTZjLS41NSAwLTEuMDcuMDgtMS41Ny4yMy0uOS0zLjAzLTMuNjktNS4yMy03LjQzLTUuMjMtMy4zMSAwLTYuMTQgMi4xOS03LjA5IDUuMTktLjM1LS4xMi0uNzItLjE5LTEuMTEtLjE5LTIuMjEgMC00IDEuNzktNCA0czEuNzkgNCA0IDRoMTd6IiBmaWxsPSIjODdDRUVCIi8+CiAgPCEtLSBXZWF0aGVyIHN5bWJvbCAtLT4KICA8cGF0aCBkPSJNMjAgMzZsMiA0aDRsMi00TTI0IDMydjQiIHN0cm9rZT0iIzFCOTZGRiIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPC9zdmc+",
-    "iconSmall": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8IS0tIFN1biAtLT4KICA8Y2lyY2xlIGN4PSIxMiIgY3k9IjkiIHI9IjQiIGZpbGw9IiNGRkQ3MDAiLz4KICA8IS0tIENsb3VkcyAtLT4KICA8cGF0aCBkPSJNMTggMTZjMS42NiAwIDMtMS4zNCAzLTNzLTEuMzQtMy0zLTNjLS4yOCAwLS41NC4wNC0uNzkuMTItLjQ1LTEuNTItMS44NC0yLjYyLTMuNzEtMi42Mi0xLjY2IDAtMy4wNyAxLjEtMy41NSAyLjYtLjE3LS4wNi0uMzYtLjEtLjU1LS4xLTEuMSAwLTIgLjktMiAyczLuOSAyIDIgMmg4LjV6IiBmaWxsPSIjODdDRUVCIi8+CiAgPCEtLSBXZWF0aGVyIHN5bWJvbCAtLT4KICA8cGF0aCBkPSJNMTAgMThsMS0yaDJsMS0yTTEyIDE2djIiIHN0cm9rZT0iIzFCOTZGRiIgc3Ryb2tlLXdpZHRoPSIxIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPC9zdmc+",
+    "icon": "https://weather-app-kappa-three-25.vercel.app/images/weather-icon.svg",
+    "iconSmall": "https://weather-app-kappa-three-25.vercel.app/images/weather-icon-small.svg",
     "category": "messaging",
     "isConfigured": false,
     "version": "1.0.0",
@@ -94,7 +94,7 @@
     }
   },
   "edit": {
-    "url": "https://weather-app-kappa-three-25.vercel.app/edit.html",
+    "url": "https://weather-app-kappa-three-25.vercel.app/test.html",
     "height": 600,
     "width": 800
   },
