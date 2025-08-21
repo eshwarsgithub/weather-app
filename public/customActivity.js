@@ -62,10 +62,19 @@ define([
             }
         }
 
+        // Add event listeners for real-time validation
+        $('#location-field, #location-field-type, #weather-conditions').on('change', function() {
+            connection.trigger('updateButton', {
+                button: 'next',
+                enabled: validateConfiguration()
+            });
+        });
+
         connection.trigger('updateButton', {
             button: 'next',
             text: 'done',
-            visible: true
+            visible: true,
+            enabled: validateConfiguration()
         });
     }
 
@@ -134,6 +143,7 @@ define([
         var locationFieldType = $('#location-field-type').val();
         var weatherConditions = $('#weather-conditions').val();
 
+        // Validation
         if (!locationField) {
             alert('Please select a location field');
             return;
@@ -144,15 +154,21 @@ define([
             return;
         }
 
+        // Validate weather conditions
+        if (!weatherConditions || weatherConditions === '') {
+            weatherConditions = 'rain,snow,storm'; // Default conditions
+        }
+
         // Create the payload for the activity
         payload['arguments'] = payload['arguments'] || {};
         payload['arguments'].execute = payload['arguments'].execute || {};
+        payload['metaData'] = payload['metaData'] || {};
 
         payload['arguments'].execute.inArguments = [{
             contactKey: "{{Contact.Key}}",
             locationField: locationField,
             locationFieldType: locationFieldType,
-            weatherConditions: weatherConditions || "rain,snow,storm"
+            weatherConditions: weatherConditions
         }];
 
         payload['arguments'].execute.outArguments = [{
@@ -178,6 +194,7 @@ define([
             }
         }];
 
+        // Mark as configured
         payload['metaData'].isConfigured = true;
 
         console.log("Saving configuration:", payload);
@@ -206,7 +223,8 @@ define([
                 $('#step1').show();
                 connection.trigger('updateButton', {
                     button: 'next',
-                    enabled: Boolean(getMessage())
+                    enabled: validateConfiguration(),
+                    text: 'done'
                 });
                 connection.trigger('updateButton', {
                     button: 'back',
@@ -217,7 +235,24 @@ define([
     }
 
     function getMessage() {
-        return $('#location-field').val() && $('#location-field-type').val();
+        var locationField = $('#location-field').val();
+        var locationFieldType = $('#location-field-type').val();
+        return locationField && locationFieldType;
+    }
+
+    function validateConfiguration() {
+        var locationField = $('#location-field').val();
+        var locationFieldType = $('#location-field-type').val();
+        
+        if (!locationField || locationField.trim() === '') {
+            return false;
+        }
+        
+        if (!locationFieldType || locationFieldType.trim() === '') {
+            return false;
+        }
+        
+        return true;
     }
 
 });
