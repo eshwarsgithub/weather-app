@@ -580,6 +580,28 @@ app.post('/stop', (req, res) => {
     });
 });
 
+// Health check endpoint for status verification
+app.get('/health', (req, res) => {
+    const health = {
+        status: 'healthy',
+        timestamp: new Date().toISOString(),
+        environment: {
+            weatherApiConfigured: !!process.env.WEATHER_API_KEY,
+            jwtSecretConfigured: !!process.env.JWT_SIGNING_SECRET
+        },
+        endpoints: {
+            config: '/config.json',
+            execute: '/execute',
+            save: '/save',
+            publish: '/publish',
+            validate: '/validate',
+            stop: '/stop'
+        }
+    };
+    
+    res.status(200).json(health);
+});
+
 // Global error handler
 app.use((err, req, res, next) => {
     console.error('Global error handler:', err);

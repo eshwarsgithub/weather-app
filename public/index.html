@@ -170,20 +170,20 @@
                 const configResponse = await fetch('/config.json');
                 const config = await configResponse.json();
                 
-                // Check if required endpoints respond
-                const validateResponse = await fetch('/validate', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({})
-                });
+                // Check health endpoint
+                const healthResponse = await fetch('/health');
+                const health = await healthResponse.json();
                 
-                if (configResponse.ok && validateResponse.ok) {
+                if (configResponse.ok && healthResponse.ok) {
+                    const envStatus = health.environment.weatherApiConfigured && health.environment.jwtSecretConfigured;
+                    
                     statusDiv.innerHTML = `
                         <p>✅ Application is running correctly</p>
                         <p>📝 Config.json loaded successfully</p>
                         <p>🔧 All endpoints are responding</p>
                         <p><strong>Activity Name:</strong> ${config.lang['en-US'].name}</p>
-                        <p><strong>Ready for SFMC installation!</strong></p>
+                        <p>🔐 Environment Variables: ${envStatus ? '✅ Configured' : '⚠️ Missing API keys'}</p>
+                        <p><strong>${envStatus ? 'Ready for SFMC installation!' : 'Configure environment variables in Vercel dashboard'}</strong></p>
                     `;
                 } else {
                     throw new Error('Some endpoints are not responding correctly');
