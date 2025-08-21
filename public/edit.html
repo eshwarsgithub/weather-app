@@ -139,28 +139,78 @@
     <!-- Include jQuery for easier DOM manipulation -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     
-    <!-- RequireJS and Postmonger -->
-    <script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js"></script>
-    
+    <!-- Postmonger Library with fallback -->
     <script>
-        require.config({
-            paths: {
-                'postmonger': 'https://cdn.jsdelivr.net/npm/postmonger@2.0.0/postmonger'
+        // Try multiple CDNs for postmonger
+        function loadPostmonger() {
+            const postmongerUrls = [
+                'https://cdn.jsdelivr.net/npm/postmonger@0.0.16/postmonger.js',
+                'https://unpkg.com/postmonger@0.0.16/postmonger.js',
+                'https://cdn.jsdelivr.net/npm/postmonger@latest/postmonger.js'
+            ];
+            
+            let currentIndex = 0;
+            
+            function tryNextUrl() {
+                if (currentIndex >= postmongerUrls.length) {
+                    console.error('Failed to load postmonger from all CDNs');
+                    // Create a minimal postmonger fallback
+                    window.Postmonger = {
+                        Session: function() {
+                            return {
+                                on: function() {},
+                                trigger: function() {},
+                                ready: function() {}
+                            };
+                        }
+                    };
+                    loadCustomActivity();
+                    return;
+                }
+                
+                const script = document.createElement('script');
+                script.src = postmongerUrls[currentIndex];
+                script.onload = function() {
+                    console.log('Postmonger loaded from:', postmongerUrls[currentIndex]);
+                    loadCustomActivity();
+                };
+                script.onerror = function() {
+                    console.warn('Failed to load postmonger from:', postmongerUrls[currentIndex]);
+                    currentIndex++;
+                    tryNextUrl();
+                };
+                document.head.appendChild(script);
             }
-        });
-
+            
+            tryNextUrl();
+        }
+        
+        function loadCustomActivity() {
+            const script = document.createElement('script');
+            script.src = 'customActivity.js';
+            script.onload = function() {
+                console.log('Custom activity loaded successfully');
+            };
+            script.onerror = function() {
+                console.error('Failed to load custom activity');
+            };
+            document.head.appendChild(script);
+        }
+        
         // Show/hide custom conditions input based on selection
-        $('#weather-conditions').on('change', function() {
-            if ($(this).val() === 'custom') {
-                $('#custom-conditions-group').show();
-            } else {
-                $('#custom-conditions-group').hide();
-            }
-        });
-
-        // Load the custom activity configuration
-        require(['customActivity'], function() {
-            console.log('Weather Activity configuration loaded');
+        $(document).ready(function() {
+            $('#weather-conditions').on('change', function() {
+                if ($(this).val() === 'custom') {
+                    $('#custom-conditions-group').show();
+                } else {
+                    $('#custom-conditions-group').hide();
+                }
+            });
+            
+            // Load postmonger
+            loadPostmonger();
+            
+            console.log('Weather Activity configuration UI loaded');
         });
     </script>
 </body>

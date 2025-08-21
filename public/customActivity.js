@@ -2,10 +2,25 @@
  * Custom Activity for Salesforce Marketing Cloud Journey Builder
  * Weather API Integration with Dynamic Field Selection
  */
-define([
-    'postmonger'
-], function (Postmonger) {
+(function() {
     'use strict';
+    
+    // Wait for Postmonger to be available
+    function waitForPostmonger(callback) {
+        if (window.Postmonger) {
+            callback();
+        } else {
+            setTimeout(function() {
+                waitForPostmonger(callback);
+            }, 100);
+        }
+    }
+    
+    waitForPostmonger(function() {
+        initializeActivity();
+    });
+    
+    function initializeActivity() {
 
     var connection = new Postmonger.Session();
     var authTokens = {};
@@ -254,5 +269,7 @@ define([
         
         return true;
     }
-
-});
+    
+    } // End of initializeActivity function
+    
+})(); // End of IIFE
