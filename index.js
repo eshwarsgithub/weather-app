@@ -5,12 +5,27 @@ const path = require('path');
 
 const app = express();
 
+// CORS middleware for cross-origin requests
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, x-jwt-assertion');
+    
+    // Handle preflight requests
+    if (req.method === 'OPTIONS') {
+        res.sendStatus(200);
+    } else {
+        next();
+    }
+});
+
 // Serve static files from the 'public' directory
 // This line serves your CSS, JS, and other assets for the UI
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Middleware to parse JSON bodies
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // --- NEW ---
 // This route explicitly serves your index.html file for the homepage.
@@ -565,6 +580,34 @@ app.post('/stop', (req, res) => {
     });
 });
 
+// Global error handler
+app.use((err, req, res, next) => {
+    console.error('Global error handler:', err);
+    res.status(500).json({
+        error: 'Internal server error',
+        message: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
+    });
+});
+
+// 404 handler for unmatched routes
+app.use((req, res) => {
+    console.log(`404 - Route not found: ${req.method} ${req.url}`);
+    res.status(404).json({
+        error: 'Not Found',
+        message: `Route ${req.method} ${req.url} not found`,
+        availableEndpoints: [
+            'GET /',
+            'GET /config.json',
+            'GET /edit.html',
+            'POST /execute',
+            'POST /save',
+            'POST /publish',
+            'POST /validate',
+            'POST /stop'
+        ]
+    });
+});
+
 // Start the server if not in serverless environment
 const PORT = process.env.PORT || 3000;
 if (require.main === module) {
@@ -573,6 +616,8 @@ if (require.main === module) {
         console.log(`📝 Config: http://localhost:${PORT}/config.json`);
         console.log(`🔧 UI: http://localhost:${PORT}/edit.html`);
         console.log(`🌍 Homepage: http://localhost:${PORT}/`);
+        console.log(`🔐 Environment check: ${process.env.WEATHER_API_KEY ? 'Weather API configured' : 'Weather API missing'}`);
+        console.log(`🔑 JWT Secret check: ${process.env.JWT_SIGNING_SECRET ? 'JWT configured' : 'JWT secret missing'}`);
     });
 }
 

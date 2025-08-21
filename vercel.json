@@ -4,6 +4,10 @@
       {
         "src": "index.js",
         "use": "@vercel/node"
+      },
+      {
+        "src": "public/**/*",
+        "use": "@vercel/static"
       }
     ],
     "routes": [
@@ -13,23 +17,28 @@
       },
       {
         "src": "/execute",
-        "dest": "index.js"
+        "dest": "index.js",
+        "methods": ["POST"]
       },
       {
         "src": "/save",
-        "dest": "index.js"
+        "dest": "index.js",
+        "methods": ["POST"]
       },
       {
         "src": "/publish",
-        "dest": "index.js"
+        "dest": "index.js",
+        "methods": ["POST"]
       },
       {
         "src": "/validate",
-        "dest": "index.js"
+        "dest": "index.js",
+        "methods": ["POST"]
       },
       {
         "src": "/stop",
-        "dest": "index.js"
+        "dest": "index.js",
+        "methods": ["POST"]
       },
       {
         "src": "/edit.html",
@@ -40,7 +49,11 @@
         "dest": "index.js"
       },
       {
-        "src": "/(.*)",
+        "src": "/public/(.*)",
+        "dest": "/public/$1"
+      },
+      {
+        "src": "/(.*\\.(css|js|png|jpg|jpeg|gif|svg|ico|json|html))$",
         "dest": "/public/$1"
       }
     ]
