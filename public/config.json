@@ -4,7 +4,7 @@
     "icon": "https://weather-app-kappa-three-25.vercel.app/images/weather-icon.svg",
     "iconSmall": "https://weather-app-kappa-three-25.vercel.app/images/weather-icon-small.svg",
     "category": "messaging",
-    "isConfigured": false,
+    "isConfigured": true,
     "version": "1.0.0",
     "configurationDisabled": false
   },
@@ -20,8 +20,8 @@
       "inArguments": [
         {
           "contactKey": "{{Contact.Key}}",
-          "locationField": "",
-          "locationFieldType": "coordinates",
+          "locationField": "{{Contact.Attribute.City}}",
+          "locationFieldType": "city",
           "weatherConditions": "rain,snow,storm"
         }
       ],
