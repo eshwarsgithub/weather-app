@@ -33,17 +33,17 @@
             "branchResult": ""
           }
         ],
-        "url": "https://weather-app-kappa-three-25.vercel.app/api/execute",
+        "url": "https://weather-app-kappa-three-25.vercel.app/execute",
         "verb": "POST",
         "useJwt": false,
         "timeout": 10000
       }
     },
     "configurationArguments": {
-      "save": { "url": "https://weather-app-kappa-three-25.vercel.app/api/save" },
-      "publish": { "url": "https://weather-app-kappa-three-25.vercel.app/api/publish" },
-      "validate": { "url": "https://weather-app-kappa-three-25.vercel.app/api/validate" },
-      "stop": { "url": "https://weather-app-kappa-three-25.vercel.app/api/stop" }
+      "save": { "url": "https://weather-app-kappa-three-25.vercel.app/save" },
+      "publish": { "url": "https://weather-app-kappa-three-25.vercel.app/publish" },
+      "validate": { "url": "https://weather-app-kappa-three-25.vercel.app/validate" },
+      "stop": { "url": "https://weather-app-kappa-three-25.vercel.app/stop" }
     },
     "edit": {
       "url": "https://weather-app-kappa-three-25.vercel.app/edit.html"

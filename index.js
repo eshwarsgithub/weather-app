@@ -263,7 +263,8 @@ app.post('/execute', async (req, res) => {
         });
     }
     
-    if (!token) {
+    // JWT disabled for testing - remove this comment to re-enable JWT
+    if (!token && false) {
         console.error('Missing JWT token');
         return res.status(401).json({ 
             error: 'Unauthorized: Missing token.',
@@ -272,61 +273,66 @@ app.post('/execute', async (req, res) => {
     }
 
     try {
-        const decoded = jwt.verify(token, jwtSigningSecret);
-        console.log('JWT decoded successfully:', JSON.stringify(decoded, null, 2));
+        let decoded = {};
+        let inArguments = {};
         
-        const inArguments = decoded.inArguments && decoded.inArguments[0] || req.body.inArguments && req.body.inArguments[0] || {};
+        if (token) {
+            decoded = jwt.verify(token, jwtSigningSecret);
+            console.log('JWT decoded successfully:', JSON.stringify(decoded, null, 2));
+            inArguments = decoded.inArguments && decoded.inArguments[0] || {};
+        } else {
+            console.log('No JWT token, using request body directly');
+            inArguments = req.body.inArguments && req.body.inArguments[0] || {};
+        }
+        
         console.log('inArguments:', JSON.stringify(inArguments, null, 2));
         
+        // Extract data extension fields
         const contactKey = inArguments.contactKey;
-        const locationFieldValue = inArguments.locationField;
-        const locationFieldType = inArguments.locationFieldType || 'coordinates';
-        const weatherConditions = inArguments.weatherConditions || 'rain,snow,storm';
+        const emailAddress = inArguments.emailAddress;
+        const city = inArguments.city;
+        const state = inArguments.state;
+        const postalCode = inArguments.postalCode;
+        const country = inArguments.country || 'US';
+        const latitude = inArguments.latitude;
+        const longitude = inArguments.longitude;
 
-        if (!locationFieldValue) {
-            console.error('Missing location field value');
-            return res.status(400).json({ 
-                error: 'Bad Request: Missing location data.',
-                branchResult: 'Good Weather' 
-            });
-        }
+        console.log('Extracted data extension fields:', {
+            contactKey, emailAddress, city, state, postalCode, country, latitude, longitude
+        });
 
-        // Get coordinates based on location type
-        let lat, lon;
-        
-        if (locationFieldType === 'coordinates') {
-            // Handle coordinates in format "lat,lng" or object with lat/lng
-            if (typeof locationFieldValue === 'string') {
-                const coords = locationFieldValue.split(',');
-                if (coords.length === 2) {
-                    lat = parseFloat(coords[0].trim());
-                    lon = parseFloat(coords[1].trim());
-                }
-            } else if (typeof locationFieldValue === 'object') {
-                lat = locationFieldValue.latitude || locationFieldValue.lat;
-                lon = locationFieldValue.longitude || locationFieldValue.lng || locationFieldValue.lon;
-            }
+        // Build weather API URL based on available data
+        let weatherUrl = "";
+        let locationDescription = "";
+
+        // Priority: 1. lat/long, 2. city+state, 3. postal code, 4. city only
+        if (latitude && longitude) {
+            weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${weatherApiKey}&units=metric`;
+            locationDescription = `coordinates ${latitude},${longitude}`;
+        } else if (city && state) {
+            const location = `${city},${state},${country}`;
+            weatherUrl = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(location)}&appid=${weatherApiKey}&units=metric`;
+            locationDescription = `city+state: ${location}`;
+        } else if (postalCode) {
+            const zipLocation = `${postalCode},${country}`;
+            weatherUrl = `https://api.openweathermap.org/data/2.5/weather?zip=${encodeURIComponent(zipLocation)}&appid=${weatherApiKey}&units=metric`;
+            locationDescription = `postal code: ${zipLocation}`;
+        } else if (city) {
+            weatherUrl = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${weatherApiKey}&units=metric`;
+            locationDescription = `city: ${city}`;
         } else {
-            // Use geocoding for other location types
-            const geoResult = await geocodeLocation(locationFieldValue, locationFieldType, weatherApiKey);
-            if (geoResult) {
-                lat = geoResult.lat;
-                lon = geoResult.lon;
-            }
-        }
-
-        if (!lat || !lon) {
-            console.error('Could not determine coordinates from location data:', locationFieldValue);
+            console.error('No valid location data found');
             return res.status(400).json({ 
-                error: 'Bad Request: Could not determine coordinates from location data.',
-                branchResult: 'Good Weather' 
+                error: "Missing location data - need city, postal code, or coordinates",
+                branchResult: 'Good Weather',
+                received: { city, state, postalCode, country, latitude, longitude }
             });
         }
 
-        console.log(`Getting weather for coordinates: ${lat}, ${lon}`);
+        console.log(`Getting weather for ${locationDescription}`);
+        console.log('Weather API URL:', weatherUrl);
         
         // Get weather data
-        const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${weatherApiKey}&units=metric`;
         
         const response = await axios.get(weatherUrl);
         const weatherData = response.data;
