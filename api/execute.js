@@ -1,4 +1,4 @@
-import fetch from "node-fetch";
+// Node 18+ has native fetch support
 
 export default async function handler(req, res) {
   console.log('Weather Execute API called');
