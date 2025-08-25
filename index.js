@@ -296,6 +296,7 @@ app.post('/execute', async (req, res) => {
         const country = inArguments.country || 'US';
         const latitude = inArguments.latitude;
         const longitude = inArguments.longitude;
+        const weatherConditions = inArguments.weatherConditions || 'rain,thunderstorm,snow,drizzle';
 
         console.log('Extracted data extension fields:', {
             contactKey, emailAddress, city, state, postalCode, country, latitude, longitude
