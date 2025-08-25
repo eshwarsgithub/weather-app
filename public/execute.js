@@ -17,10 +17,12 @@ export default async function handler(req, res) {
     );
     const data = await response.json();
 
-    const raining = data.weather.some(w => w.main.toLowerCase().includes("rain"));
+    const hasAdverseWeather = data.weather.some(w => 
+      ["rain", "thunderstorm", "snow", "drizzle"].includes(w.main.toLowerCase())
+    );
 
     return res.json({
-      branchResult: raining ? "raining_branch" : "not_raining_branch"
+      branchResult: hasAdverseWeather ? "Adverse Weather" : "Good Weather"
     });
   } catch (e) {
     console.error("Execute error", e);
