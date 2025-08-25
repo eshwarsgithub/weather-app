@@ -15,8 +15,10 @@
         "inArguments": [
           {
             "contactKey": "{{Contact.Key}}",
-            "latitude": "{{Interaction.JourneyEntry_WeatherCheck_DE.Latitude}}",
-            "longitude": "{{Interaction.JourneyEntry_WeatherCheck_DE.Longitude}}"
+            "city": "{{Contact.Attribute.Demographics.City}}",
+            "state": "{{Contact.Attribute.Demographics.State}}",
+            "postalCode": "{{Contact.Attribute.Demographics.PostalCode}}",
+            "country": "{{Contact.Attribute.Demographics.Country}}"
           }
         ],
         "outArguments": [],

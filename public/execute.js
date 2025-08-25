@@ -3,19 +3,32 @@ import fetch from "node-fetch";
 export default async function handler(req, res) {
   try {
     const inArgs = req.body.inArguments?.[0];
-    const lat = inArgs?.latitude;
-    const lon = inArgs?.longitude;
+    const city = inArgs?.city;
+    const state = inArgs?.state;
+    const postalCode = inArgs?.postalCode;
+    const country = inArgs?.country;
 
-    if (!lat || !lon) {
-      return res.status(400).json({ error: "Missing latitude or longitude" });
+    // Try different location formats
+    let weatherUrl = "";
+    const apiKey = process.env.OPENWEATHER_KEY;
+
+    if (city && state) {
+      weatherUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city},${state},${country || 'US'}&appid=${apiKey}`;
+    } else if (postalCode) {
+      weatherUrl = `https://api.openweathermap.org/data/2.5/weather?zip=${postalCode},${country || 'US'}&appid=${apiKey}`;
+    } else if (city) {
+      weatherUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}`;
+    } else {
+      return res.status(400).json({ error: "Missing location data (city, state, or postal code required)" });
     }
 
-    // 🌦 Call OpenWeather API (replace with your API key)
-    const apiKey = process.env.OPENWEATHER_KEY;
-    const response = await fetch(
-      `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}`
-    );
+    const response = await fetch(weatherUrl);
     const data = await response.json();
+
+    if (data.cod !== 200) {
+      console.log("Weather API error:", data);
+      return res.status(400).json({ error: "Location not found" });
+    }
 
     const hasAdverseWeather = data.weather.some(w => 
       ["rain", "thunderstorm", "snow", "drizzle"].includes(w.main.toLowerCase())
