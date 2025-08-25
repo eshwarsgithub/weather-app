@@ -3,6 +3,8 @@ const axios = require('axios');
 const jwt = require('jsonwebtoken');
 const path = require('path');
 
+// Deployment timestamp: 2025-08-25 - Force Vercel redeploy
+
 const app = express();
 
 // CORS middleware for cross-origin requests
