@@ -377,7 +377,7 @@ app.post('/execute', async (req, res) => {
             description: description,
             temperature: `${temperature}°C`,
             humidity: `${humidity}%`,
-            location: `${lat}, ${lon}`
+            location: locationDescription
         });
         console.log(`✅ [${requestId}] Request completed in ${processingTime}ms`);
         
@@ -387,7 +387,7 @@ app.post('/execute', async (req, res) => {
             temperature: temperature,
             humidity: humidity,
             description: description,
-            coordinates: { lat, lon },
+            locationUsed: locationDescription,
             contactKey: contactKey,
             requestId: requestId,
             processingTime: processingTime,
