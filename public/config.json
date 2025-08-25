@@ -1,182 +1,61 @@
 {
-  "workflowApiVersion": "1.1",
-  "metaData": {
-    "icon": "https://weather-app-kappa-three-25.vercel.app/images/weather-icon.svg",
-    "iconSmall": "https://weather-app-kappa-three-25.vercel.app/images/weather-icon-small.svg",
-    "category": "messaging",
-    "isConfigured": true,
-    "version": "1.0.0",
-    "configurationDisabled": false
-  },
-  "type": "RESTDECISION",
-  "lang": {
-    "en-US": {
-      "name": "Weather-Based Decision Split",
-      "description": "Routes journey participants based on current weather conditions at their location"
-    }
-  },
-  "arguments": {
-    "execute": {
-      "inArguments": [
-        {
-          "contactKey": "{{Contact.Key}}",
-          "locationField": "{{Contact.Attribute.City}}",
-          "locationFieldType": "city",
-          "weatherConditions": "rain,snow,storm"
-        }
-      ],
-      "outArguments": [
-        {
-          "weatherCondition": {
-            "dataType": "Text",
-            "isNullable": false,
-            "direction": "out"
-          },
-          "temperature": {
-            "dataType": "Number",
-            "isNullable": true,
-            "direction": "out"
-          },
-          "humidity": {
-            "dataType": "Number",
-            "isNullable": true,
-            "direction": "out"
-          },
-          "description": {
-            "dataType": "Text",
-            "isNullable": true,
-            "direction": "out"
-          }
-        }
-      ],
-      "url": "https://weather-app-kappa-three-25.vercel.app/execute",
-      "verb": "POST",
-      "body": "",
-      "header": "",
-      "format": "json",
-      "useJwt": true,
-      "timeout": 30000,
-      "retryCount": 3,
-      "retryDelay": 2000,
-      "concurrentRequests": 5,
-      "customActivityResult": "{{ActivityInstanceId}}"
-    }
-  },
-  "configurationArguments": {
-    "applicationExtensionKey": "d6b98705-3047-4869-8419-89691fdaec3a",
-    "save": {
-      "url": "https://weather-app-kappa-three-25.vercel.app/save",
-      "verb": "POST",
-      "body": "",
-      "format": "json",
-      "useJwt": false
-    },
-    "publish": {
-      "url": "https://weather-app-kappa-three-25.vercel.app/publish",
-      "verb": "POST",
-      "body": "",
-      "format": "json",
-      "useJwt": false
-    },
-    "validate": {
-      "url": "https://weather-app-kappa-three-25.vercel.app/validate",
-      "verb": "POST",
-      "body": "",
-      "format": "json",
-      "useJwt": false
-    },
-    "stop": {
-      "url": "https://weather-app-kappa-three-25.vercel.app/stop",
-      "verb": "POST",
-      "body": "",
-      "format": "json",
-      "useJwt": false
-    }
-  },
-  "edit": {
-    "url": "https://weather-app-kappa-three-25.vercel.app/edit-working.html",
-    "height": 700,
-    "width": 900
-  },
-  "outcomes": [
-    {
-      "arguments": { 
-        "branchResult": "Adverse Weather" 
-      },
-      "metaData": { 
-        "label": "Adverse Weather",
-        "description": "Contact is experiencing rain, snow, storms, or other configured adverse weather conditions"
+    "workflowApiVersion": "1.1",
+    "key": "weather-check-activity-key",
+    "name": "Weather Check",
+    "description": "Checks the current weather for a contact and branches the journey.",
+    "type": "RESTDECISION",
+    "lang": {
+      "en-US": {
+        "name": "Weather Check",
+        "description": "Checks the weather and branches journey."
       }
     },
-    {
-      "arguments": { 
-        "branchResult": "Good Weather" 
-      },
-      "metaData": { 
-        "label": "Good Weather",
-        "description": "Contact has clear or mild weather conditions"
-      }
-    }
-  ],
-  "wizardSteps": [
-    {
-      "key": "configuration",
-      "label": "Weather Configuration",
-      "active": true
-    }
-  ],
-  "schema": {
     "arguments": {
       "execute": {
         "inArguments": [
           {
-            "contactKey": {
-              "dataType": "Text",
-              "isNullable": false,
-              "direction": "in"
-            },
-            "locationField": {
-              "dataType": "Text",
-              "isNullable": false,
-              "direction": "in"
-            },
-            "locationFieldType": {
-              "dataType": "Text",
-              "isNullable": false,
-              "direction": "in"
-            },
-            "weatherConditions": {
-              "dataType": "Text",
-              "isNullable": true,
-              "direction": "in"
-            }
+            "contactKey": "{{Contact.Key}}",
+            "latitude": "{{Interaction.JourneyEntry_WeatherCheck_DE.Latitude}}",
+            "longitude": "{{Interaction.JourneyEntry_WeatherCheck_DE.Longitude}}"
           }
         ],
-        "outArguments": [
-          {
-            "weatherCondition": {
-              "dataType": "Text",
-              "isNullable": false,
-              "direction": "out"
-            },
-            "temperature": {
-              "dataType": "Number",
-              "isNullable": true,
-              "direction": "out"
-            },
-            "humidity": {
-              "dataType": "Number",
-              "isNullable": true,
-              "direction": "out"
-            },
-            "description": {
-              "dataType": "Text",
-              "isNullable": true,
-              "direction": "out"
-            }
-          }
-        ]
+        "outArguments": [],
+        "url": "https://weather-app-kappa-three-25.vercel.app/execute",
+        "verb": "POST",
+        "useJwt": true,
+        "timeout": 10000
       }
-    }
+    },
+    "configurationArguments": {
+      "save": { "url": "https://weather-app-kappa-three-25.vercel.app/save" },
+      "publish": { "url": "https://weather-app-kappa-three-25.vercel.app/publish" },
+      "validate": { "url": "https://weather-app-kappa-three-25.vercel.app/validate" },
+      "stop": { "url": "https://weather-app-kappa-three-25.vercel.app/stop" }
+    },
+    "edit": {
+      "url": "https://weather-app-kappa-three-25.vercel.app/edit.html"
+    },
+    "outcomes": [
+      {
+        "key": "adverse_weather",
+        "name": "Adverse Weather",
+        "arguments": {
+          "branchResult": "Adverse Weather"
+        }
+      },
+      {
+        "key": "good_weather",
+        "name": "Good Weather",
+        "arguments": {
+          "branchResult": "Good Weather"
+        }
+      }
+    ],
+    "metaData": {
+      "icon": "images/icon.png",
+      "category": "Decision"
+    },
+    "isConfigured": true
   }
-}
+  
+  
