@@ -1,0 +1,144 @@
+{
+  "info": {
+    "name": "SFMC Weather Activity API Tests",
+    "description": "Test collection for the Weather Activity API endpoints",
+    "version": "1.0.0"
+  },
+  "tests": [
+    {
+      "name": "Test Execute with City+State",
+      "method": "POST",
+      "url": "https://weather-app-kappa-three-25.vercel.app/execute",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "inArguments": [
+          {
+            "contactKey": "test-contact-001",
+            "emailAddress": "test@example.com",
+            "city": "New York",
+            "state": "NY",
+            "postalCode": "",
+            "country": "US",
+            "latitude": "",
+            "longitude": ""
+          }
+        ]
+      },
+      "expectedResults": {
+        "status": 200,
+        "branchResult": "Good Weather or Adverse Weather",
+        "weatherCondition": "should contain weather condition",
+        "temperature": "should be a number",
+        "humidity": "should be a number"
+      }
+    },
+    {
+      "name": "Test Execute with Postal Code",
+      "method": "POST",
+      "url": "https://weather-app-kappa-three-25.vercel.app/execute",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "inArguments": [
+          {
+            "contactKey": "test-contact-002",
+            "emailAddress": "test2@example.com",
+            "city": "",
+            "state": "",
+            "postalCode": "10001",
+            "country": "US",
+            "latitude": "",
+            "longitude": ""
+          }
+        ]
+      },
+      "expectedResults": {
+        "status": 200,
+        "branchResult": "Good Weather or Adverse Weather"
+      }
+    },
+    {
+      "name": "Test Execute with Coordinates",
+      "method": "POST",
+      "url": "https://weather-app-kappa-three-25.vercel.app/execute",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "inArguments": [
+          {
+            "contactKey": "test-contact-003",
+            "emailAddress": "test3@example.com",
+            "city": "New York",
+            "state": "NY",
+            "postalCode": "10001",
+            "country": "US",
+            "latitude": "40.7128",
+            "longitude": "-74.0060"
+          }
+        ]
+      },
+      "expectedResults": {
+        "status": 200,
+        "branchResult": "Good Weather or Adverse Weather"
+      }
+    },
+    {
+      "name": "Test Execute with Missing Location",
+      "method": "POST",
+      "url": "https://weather-app-kappa-three-25.vercel.app/execute",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "inArguments": [
+          {
+            "contactKey": "test-contact-004",
+            "emailAddress": "test4@example.com",
+            "city": "",
+            "state": "",
+            "postalCode": "",
+            "country": "",
+            "latitude": "",
+            "longitude": ""
+          }
+        ]
+      },
+      "expectedResults": {
+        "status": 400,
+        "error": "Missing location data"
+      }
+    },
+    {
+      "name": "Test Config.json",
+      "method": "GET",
+      "url": "https://weather-app-kappa-three-25.vercel.app/config.json",
+      "headers": {},
+      "expectedResults": {
+        "status": 200,
+        "contains": "JourneyEntry_WeatherCheck_DE"
+      }
+    }
+  ],
+  "curlCommands": [
+    {
+      "name": "Test with City+State",
+      "command": "curl -X POST https://weather-app-kappa-three-25.vercel.app/execute -H \"Content-Type: application/json\" -d '{\"inArguments\":[{\"contactKey\":\"test-001\",\"emailAddress\":\"test@example.com\",\"city\":\"New York\",\"state\":\"NY\",\"country\":\"US\"}]}'"
+    },
+    {
+      "name": "Test with Postal Code",
+      "command": "curl -X POST https://weather-app-kappa-three-25.vercel.app/execute -H \"Content-Type: application/json\" -d '{\"inArguments\":[{\"contactKey\":\"test-002\",\"emailAddress\":\"test2@example.com\",\"postalCode\":\"10001\",\"country\":\"US\"}]}'"
+    },
+    {
+      "name": "Test with Coordinates",
+      "command": "curl -X POST https://weather-app-kappa-three-25.vercel.app/execute -H \"Content-Type: application/json\" -d '{\"inArguments\":[{\"contactKey\":\"test-003\",\"emailAddress\":\"test3@example.com\",\"latitude\":\"40.7128\",\"longitude\":\"-74.0060\"}]}'"
+    },
+    {
+      "name": "Test Config",
+      "command": "curl https://weather-app-kappa-three-25.vercel.app/config.json"
+    }
+  ]
+}

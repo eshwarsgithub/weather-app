@@ -62,18 +62,30 @@
         <h2>Configure Weather Activity</h2>
         <p>Set up weather-based journey branching for your contacts.</p>
         
+        <div class="info-box">
+            <h3>Data Extension: JourneyEntry_WeatherCheck_DE</h3>
+            <p>This activity expects your journey to use a data extension with these fields:</p>
+            <ul>
+                <li><strong>City</strong> - Contact's city name</li>
+                <li><strong>State</strong> - State/province code</li>
+                <li><strong>PostalCode</strong> - ZIP or postal code</li>
+                <li><strong>Country</strong> - Country code (optional, defaults to US)</li>
+                <li><strong>Latitude</strong> - Exact coordinates (optional)</li>
+                <li><strong>Longitude</strong> - Exact coordinates (optional)</li>
+            </ul>
+        </div>
+
         <div class="form-group">
-            <label for="location-source">
-                <span class="required">*</span> Location Data Source
+            <label for="location-priority">
+                <span class="required">*</span> Location Data Priority
             </label>
-            <select id="location-source" required>
-                <option value="">-- Select location data --</option>
-                <option value="{{Contact.Attribute.City}}">Contact City</option>
-                <option value="{{Contact.Attribute.PostalCode}}">Contact Postal Code</option>
-                <option value="{{Contact.Attribute.State}}">Contact State</option>
-                <option value="custom">Custom Field</option>
+            <select id="location-priority" required>
+                <option value="coordinates">Use Coordinates (if available), fallback to City+State</option>
+                <option value="city_state">Use City+State, fallback to Postal Code</option>
+                <option value="postal">Use Postal Code, fallback to City only</option>
+                <option value="city_only">Use City only</option>
             </select>
-            <div class="help-text">Choose where to get location data for weather lookup</div>
+            <div class="help-text">How should the activity prioritize location data from your data extension</div>
         </div>
         
         <div class="form-group" id="custom-field-group" style="display: none;">
@@ -128,13 +140,9 @@
             $('#loading').hide();
             $('#main-content').show();
             
-            // Handle custom field toggle
-            $('#location-source').change(function() {
-                if ($(this).val() === 'custom') {
-                    $('#custom-field-group').show();
-                } else {
-                    $('#custom-field-group').hide();
-                }
+            // Handle location priority change
+            $('#location-priority').change(function() {
+                console.log('Location priority changed to:', $(this).val());
             });
             
             // Initialize postmonger if available
@@ -147,18 +155,39 @@
                 
                 connection.on('clickedNext', function() {
                     const config = {
-                        locationSource: $('#location-source').val(),
-                        customField: $('#custom-field').val(),
-                        weatherType: $('#weather-type').val()
+                        locationPriority: $('#location-priority').val(),
+                        weatherType: $('#weather-type').val(),
+                        dataExtension: 'JourneyEntry_WeatherCheck_DE'
                     };
                     
                     console.log('Saving config:', config);
                     
+                    // The actual field mappings are already in config.json
+                    // This just saves the user's preferences
                     connection.trigger('updateActivity', {
                         arguments: {
                             execute: {
-                                inArguments: [config],
-                                outArguments: []
+                                inArguments: [{
+                                    contactKey: "{{Contact.Key}}",
+                                    emailAddress: "{{Contact.Attribute.EmailAddress}}",
+                                    city: "{{Event.JourneyEntry_WeatherCheck_DE.City}}",
+                                    state: "{{Event.JourneyEntry_WeatherCheck_DE.State}}",
+                                    postalCode: "{{Event.JourneyEntry_WeatherCheck_DE.PostalCode}}",
+                                    country: "{{Event.JourneyEntry_WeatherCheck_DE.Country}}",
+                                    latitude: "{{Event.JourneyEntry_WeatherCheck_DE.Latitude}}",
+                                    longitude: "{{Event.JourneyEntry_WeatherCheck_DE.Longitude}}",
+                                    locationPriority: config.locationPriority,
+                                    weatherType: config.weatherType
+                                }],
+                                outArguments: [
+                                    {
+                                        weatherCondition: "",
+                                        temperature: "",
+                                        humidity: "",
+                                        description: "",
+                                        branchResult: ""
+                                    }
+                                ]
                             }
                         },
                         metaData: {

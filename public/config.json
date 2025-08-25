@@ -1,13 +1,13 @@
 {
     "workflowApiVersion": "1.1",
     "key": "weather-check-activity-key",
-    "name": "Weather Check",
-    "description": "Checks the current weather for a contact and branches the journey.",
+    "name": "Weather Check Activity",
+    "description": "Routes contacts based on current weather conditions at their location",
     "type": "RESTDECISION",
     "lang": {
       "en-US": {
-        "name": "Weather Check",
-        "description": "Checks the weather and branches journey."
+        "name": "Weather Check Activity",
+        "description": "Routes contacts based on weather conditions"
       }
     },
     "arguments": {
@@ -15,24 +15,35 @@
         "inArguments": [
           {
             "contactKey": "{{Contact.Key}}",
-            "city": "{{Contact.Attribute.Demographics.City}}",
-            "state": "{{Contact.Attribute.Demographics.State}}",
-            "postalCode": "{{Contact.Attribute.Demographics.PostalCode}}",
-            "country": "{{Contact.Attribute.Demographics.Country}}"
+            "emailAddress": "{{Contact.Attribute.EmailAddress}}",
+            "city": "{{Event.JourneyEntry_WeatherCheck_DE.City}}",
+            "state": "{{Event.JourneyEntry_WeatherCheck_DE.State}}",
+            "postalCode": "{{Event.JourneyEntry_WeatherCheck_DE.PostalCode}}",
+            "country": "{{Event.JourneyEntry_WeatherCheck_DE.Country}}",
+            "latitude": "{{Event.JourneyEntry_WeatherCheck_DE.Latitude}}",
+            "longitude": "{{Event.JourneyEntry_WeatherCheck_DE.Longitude}}"
           }
         ],
-        "outArguments": [],
-        "url": "https://weather-app-kappa-three-25.vercel.app/execute",
+        "outArguments": [
+          {
+            "weatherCondition": "",
+            "temperature": "",
+            "humidity": "",
+            "description": "",
+            "branchResult": ""
+          }
+        ],
+        "url": "https://weather-app-kappa-three-25.vercel.app/api/execute",
         "verb": "POST",
-        "useJwt": true,
+        "useJwt": false,
         "timeout": 10000
       }
     },
     "configurationArguments": {
-      "save": { "url": "https://weather-app-kappa-three-25.vercel.app/save" },
-      "publish": { "url": "https://weather-app-kappa-three-25.vercel.app/publish" },
-      "validate": { "url": "https://weather-app-kappa-three-25.vercel.app/validate" },
-      "stop": { "url": "https://weather-app-kappa-three-25.vercel.app/stop" }
+      "save": { "url": "https://weather-app-kappa-three-25.vercel.app/api/save" },
+      "publish": { "url": "https://weather-app-kappa-three-25.vercel.app/api/publish" },
+      "validate": { "url": "https://weather-app-kappa-three-25.vercel.app/api/validate" },
+      "stop": { "url": "https://weather-app-kappa-three-25.vercel.app/api/stop" }
     },
     "edit": {
       "url": "https://weather-app-kappa-three-25.vercel.app/edit.html"
