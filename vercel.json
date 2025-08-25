@@ -1,64 +1,25 @@
 {
-    "version": 2,
-    "builds": [
-      {
-        "src": "index.js",
-        "use": "@vercel/node"
-      },
-      {
-        "src": "public/**/*",
-        "use": "@vercel/static"
-      }
-    ],
-    "routes": [
-      {
-        "src": "/config.json",
-        "dest": "index.js"
-      },
-      {
-        "src": "/health",
-        "dest": "index.js"
-      },
-      {
-        "src": "/execute",
-        "dest": "index.js",
-        "methods": ["POST"]
-      },
-      {
-        "src": "/save",
-        "dest": "index.js",
-        "methods": ["POST"]
-      },
-      {
-        "src": "/publish",
-        "dest": "index.js",
-        "methods": ["POST"]
-      },
-      {
-        "src": "/validate",
-        "dest": "index.js",
-        "methods": ["POST"]
-      },
-      {
-        "src": "/stop",
-        "dest": "index.js",
-        "methods": ["POST"]
-      },
-      {
-        "src": "/edit.html",
-        "dest": "index.js"
-      },
-      {
-        "src": "/",
-        "dest": "index.js"
-      },
-      {
-        "src": "/public/(.*)",
-        "dest": "/public/$1"
-      },
-      {
-        "src": "/(.*\\.(css|js|png|jpg|jpeg|gif|svg|ico|json|html))$",
-        "dest": "/public/$1"
-      }
-    ]
-  }
+  "functions": {
+    "api/*.js": {
+      "runtime": "nodejs18.x"
+    }
+  },
+  "routes": [
+    {
+      "src": "/config.json",
+      "dest": "/public/config.json"
+    },
+    {
+      "src": "/edit.html",
+      "dest": "/public/edit.html"
+    },
+    {
+      "src": "/customActivity.js",
+      "dest": "/public/customActivity.js"
+    },
+    {
+      "src": "/(.*\\.(css|js|png|jpg|jpeg|gif|svg|ico|json|html))$",
+      "dest": "/public/$1"
+    }
+  ]
+}
